@@ -1,0 +1,6 @@
+# StockAnalyser block dependencies (install into the Python env CatNip runs).
+yfinance>=0.2.40
+pandas>=2.0
+numpy>=1.24
+matplotlib>=3.7
+chronos-forecasting>=2.0   # PriceForecaster: Chronos-2 (brings torch, transformers)

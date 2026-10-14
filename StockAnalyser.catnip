@@ -1,0 +1,1087 @@
+{
+  "nodes": [
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/Settings.py",
+        "maxInputNumber": 0,
+        "maxOutputNumber": 1,
+        "documentationText": "",
+        "documentationFile": "Settings.md",
+        "nodeCathegory": 3,
+        "id": 1,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 0,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": false,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 0,
+            "title": "",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [],
+          "selectedOutputConnectionSettings": {
+            "id": 1,
+            "title": "Settings",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 1,
+              "title": "Settings",
+              "connecttionType": 0
+            }
+          ],
+          "description": "Settings",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "Settings",
+        "targetPath": ""
+      },
+      "locationX": 60,
+      "locationY": 60
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/Score.py",
+        "maxInputNumber": 0,
+        "maxOutputNumber": 1,
+        "documentationText": "",
+        "documentationFile": "Score.md",
+        "nodeCathegory": 3,
+        "id": 2,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 0,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": false,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 0,
+            "title": "",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [],
+          "selectedOutputConnectionSettings": {
+            "id": 2,
+            "title": "Score",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 2,
+              "title": "Score",
+              "connecttionType": 0
+            }
+          ],
+          "description": "Score",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "Score",
+        "targetPath": ""
+      },
+      "locationX": 60,
+      "locationY": 300
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/Indicators.py",
+        "maxInputNumber": 0,
+        "maxOutputNumber": 1,
+        "documentationText": "",
+        "documentationFile": "Indicators.md",
+        "nodeCathegory": 3,
+        "id": 3,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 0,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": false,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 0,
+            "title": "",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [],
+          "selectedOutputConnectionSettings": {
+            "id": 3,
+            "title": "Indicators",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 3,
+              "title": "Indicators",
+              "connecttionType": 0
+            }
+          ],
+          "description": "Indicators",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "Indicators",
+        "targetPath": ""
+      },
+      "locationX": 60,
+      "locationY": 540
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/MarketData.py",
+        "maxInputNumber": 0,
+        "maxOutputNumber": 1,
+        "documentationText": "",
+        "documentationFile": "MarketData.md",
+        "nodeCathegory": 3,
+        "id": 4,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 0,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": false,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 0,
+            "title": "",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [],
+          "selectedOutputConnectionSettings": {
+            "id": 4,
+            "title": "MarketData",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 4,
+              "title": "MarketData",
+              "connecttionType": 0
+            }
+          ],
+          "description": "MarketData",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "MarketData",
+        "targetPath": ""
+      },
+      "locationX": 400,
+      "locationY": 60
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/TechnicalAnalysis.py",
+        "maxInputNumber": 2,
+        "maxOutputNumber": 1,
+        "documentationText": "",
+        "documentationFile": "TechnicalAnalysis.md",
+        "nodeCathegory": 3,
+        "id": 5,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 2,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": true,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 5,
+            "title": "Score",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [
+            {
+              "id": 5,
+              "title": "Score",
+              "connecttionType": 0
+            },
+            {
+              "id": 6,
+              "title": "Indicators",
+              "connecttionType": 0
+            }
+          ],
+          "selectedOutputConnectionSettings": {
+            "id": 7,
+            "title": "TechnicalAnalysis",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 7,
+              "title": "TechnicalAnalysis",
+              "connecttionType": 0
+            }
+          ],
+          "description": "TechnicalAnalysis",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "TechnicalAnalysis",
+        "targetPath": ""
+      },
+      "locationX": 400,
+      "locationY": 214
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/ValuationAnalysis.py",
+        "maxInputNumber": 2,
+        "maxOutputNumber": 1,
+        "documentationText": "",
+        "documentationFile": "ValuationAnalysis.md",
+        "nodeCathegory": 3,
+        "id": 6,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 2,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": true,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 8,
+            "title": "Score",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [
+            {
+              "id": 8,
+              "title": "Score",
+              "connecttionType": 0
+            },
+            {
+              "id": 9,
+              "title": "Indicators",
+              "connecttionType": 0
+            }
+          ],
+          "selectedOutputConnectionSettings": {
+            "id": 10,
+            "title": "ValuationAnalysis",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 10,
+              "title": "ValuationAnalysis",
+              "connecttionType": 0
+            }
+          ],
+          "description": "ValuationAnalysis",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "ValuationAnalysis",
+        "targetPath": ""
+      },
+      "locationX": 400,
+      "locationY": 540
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/SupplyAnalysis.py",
+        "maxInputNumber": 1,
+        "maxOutputNumber": 1,
+        "documentationText": "",
+        "documentationFile": "SupplyAnalysis.md",
+        "nodeCathegory": 3,
+        "id": 7,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 1,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": true,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 11,
+            "title": "Score",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [
+            {
+              "id": 11,
+              "title": "Score",
+              "connecttionType": 0
+            }
+          ],
+          "selectedOutputConnectionSettings": {
+            "id": 12,
+            "title": "SupplyAnalysis",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 12,
+              "title": "SupplyAnalysis",
+              "connecttionType": 0
+            }
+          ],
+          "description": "SupplyAnalysis",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "SupplyAnalysis",
+        "targetPath": ""
+      },
+      "locationX": 400,
+      "locationY": 780
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/Recommendation.py",
+        "maxInputNumber": 5,
+        "maxOutputNumber": 1,
+        "documentationText": "",
+        "documentationFile": "Recommendation.md",
+        "nodeCathegory": 3,
+        "id": 8,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 5,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": true,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 13,
+            "title": "Score",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [
+            {
+              "id": 13,
+              "title": "Score",
+              "connecttionType": 0
+            },
+            {
+              "id": 14,
+              "title": "Indicators",
+              "connecttionType": 0
+            },
+            {
+              "id": 15,
+              "title": "TechnicalAnalysis",
+              "connecttionType": 0
+            },
+            {
+              "id": 16,
+              "title": "ValuationAnalysis",
+              "connecttionType": 0
+            },
+            {
+              "id": 17,
+              "title": "SupplyAnalysis",
+              "connecttionType": 0
+            }
+          ],
+          "selectedOutputConnectionSettings": {
+            "id": 18,
+            "title": "Recommendation",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 18,
+              "title": "Recommendation",
+              "connecttionType": 0
+            }
+          ],
+          "description": "Recommendation",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "Recommendation",
+        "targetPath": ""
+      },
+      "locationX": 760,
+      "locationY": 460
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/CandleChart.py",
+        "maxInputNumber": 0,
+        "maxOutputNumber": 1,
+        "documentationText": "",
+        "documentationFile": "CandleChart.md",
+        "nodeCathegory": 3,
+        "id": 9,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 0,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": false,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 0,
+            "title": "",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [],
+          "selectedOutputConnectionSettings": {
+            "id": 19,
+            "title": "CandleChart",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 19,
+              "title": "CandleChart",
+              "connecttionType": 0
+            }
+          ],
+          "description": "CandleChart",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "CandleChart",
+        "targetPath": ""
+      },
+      "locationX": 760,
+      "locationY": 120
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/Report.py",
+        "maxInputNumber": 6,
+        "maxOutputNumber": 1,
+        "documentationText": "",
+        "documentationFile": "Report.md",
+        "nodeCathegory": 3,
+        "id": 10,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 6,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": true,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 20,
+            "title": "Settings",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [
+            {
+              "id": 20,
+              "title": "Settings",
+              "connecttionType": 0
+            },
+            {
+              "id": 21,
+              "title": "Score",
+              "connecttionType": 0
+            },
+            {
+              "id": 22,
+              "title": "MarketData",
+              "connecttionType": 0
+            },
+            {
+              "id": 23,
+              "title": "Recommendation",
+              "connecttionType": 0
+            },
+            {
+              "id": 24,
+              "title": "CandleChart",
+              "connecttionType": 0
+            },
+            {
+              "id": 25,
+              "title": "Forecaster",
+              "connecttionType": 0
+            }
+          ],
+          "selectedOutputConnectionSettings": {
+            "id": 26,
+            "title": "Report",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 26,
+              "title": "Report",
+              "connecttionType": 0
+            }
+          ],
+          "description": "Report",
+          "isMain": true,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "Report",
+        "targetPath": ""
+      },
+      "locationX": 1120,
+      "locationY": 300
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/Backtest.py",
+        "maxInputNumber": 2,
+        "maxOutputNumber": 1,
+        "documentationText": "",
+        "documentationFile": "Backtest.md",
+        "nodeCathegory": 3,
+        "id": 11,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 2,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": true,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 27,
+            "title": "Score",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [
+            {
+              "id": 27,
+              "title": "Score",
+              "connecttionType": 0
+            },
+            {
+              "id": 28,
+              "title": "TechnicalAnalysis",
+              "connecttionType": 0
+            }
+          ],
+          "selectedOutputConnectionSettings": {
+            "id": 29,
+            "title": "Backtest",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 29,
+              "title": "Backtest",
+              "connecttionType": 0
+            }
+          ],
+          "description": "Backtest",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "Backtest",
+        "targetPath": ""
+      },
+      "locationX": 984,
+      "locationY": 683
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/PriceForecast.py",
+        "maxInputNumber": 0,
+        "maxOutputNumber": 0,
+        "documentationText": "",
+        "documentationFile": "PriceForecast.md",
+        "nodeCathegory": 3,
+        "id": 12,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 0,
+          "outputNumber": 0,
+          "inputParametersEditorEnabled": false,
+          "outputParametersEditorEnabled": false,
+          "selectedInputConnectionSettings": {
+            "id": 0,
+            "title": "",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [],
+          "selectedOutputConnectionSettings": {
+            "id": 0,
+            "title": "",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [],
+          "description": "PriceForecast",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "PriceForecast",
+        "targetPath": ""
+      },
+      "locationX": 60,
+      "locationY": -52
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/PriceForecaster.py",
+        "maxInputNumber": 1,
+        "maxOutputNumber": 1,
+        "documentationText": "",
+        "documentationFile": "PriceForecaster.md",
+        "nodeCathegory": 3,
+        "id": 13,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 1,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": true,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 30,
+            "title": "settings",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [
+            {
+              "id": 30,
+              "title": "settings",
+              "connecttionType": 0
+            }
+          ],
+          "selectedOutputConnectionSettings": {
+            "id": 31,
+            "title": "forecaster",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 31,
+              "title": "forecaster",
+              "connecttionType": 0
+            }
+          ],
+          "description": "PriceForecaster",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "PriceForecaster",
+        "targetPath": ""
+      },
+      "locationX": 465,
+      "locationY": -71
+    }
+  ],
+  "connections": [
+    {
+      "sourceNodeId": 2,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 5,
+      "targetConnectorIndex": 0,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 3,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 5,
+      "targetConnectorIndex": 1,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 2,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 6,
+      "targetConnectorIndex": 0,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 3,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 6,
+      "targetConnectorIndex": 1,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 2,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 7,
+      "targetConnectorIndex": 0,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 2,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 8,
+      "targetConnectorIndex": 0,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 3,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 8,
+      "targetConnectorIndex": 1,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 5,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 8,
+      "targetConnectorIndex": 2,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 6,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 8,
+      "targetConnectorIndex": 3,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 7,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 8,
+      "targetConnectorIndex": 4,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 1,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 10,
+      "targetConnectorIndex": 0,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 4,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 10,
+      "targetConnectorIndex": 2,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 8,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 10,
+      "targetConnectorIndex": 3,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 9,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 10,
+      "targetConnectorIndex": 4,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 2,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 11,
+      "targetConnectorIndex": 0,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 5,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 11,
+      "targetConnectorIndex": 1,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 11,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 10,
+      "targetConnectorIndex": 1,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 1,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 13,
+      "targetConnectorIndex": 0,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 13,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 10,
+      "targetConnectorIndex": 5,
+      "isChosen": false
+    }
+  ],
+  "projectType": 0,
+  "preRunCommands": [],
+  "noRedundantCode": true,
+  "engineSettings": [
+    {
+      "name": "main_1",
+      "filePath": "C:\\Users\\Adam\\Documents\\CatNip Workspace\\StockAnalyser\\main_1.py",
+      "isSelected": true,
+      "environmentId": "python:3.11-slim",
+      "runMode": "Code Run",
+      "timeoutSeconds": 600,
+      "memoryLimitMb": 1024,
+      "installMode": "Manual",
+      "manualPackages": "yfinance\npandas\nnumpy\nmatplotlib\nchronos-forecasting",
+      "dockerImage": "python:3.11-slim",
+      "newDockerImageName": "Python3.11-CatNip-Server-Exec",
+      "showImageParametersOnRun": false,
+      "runInstance": ""
+    }
+  ]
+}

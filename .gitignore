@@ -1,0 +1,36 @@
+__pycache__/
+*.py[cod]
+.venv/
+output/
+
+# Generated from the .catnip project by Generate Source / run.py
+
+# CatNip — files CatNip generates that the project does not need to run.
+# Kept on purpose: the .catnip, every .md and .py, block_code/, doc_images/, temp/.
+
+# Python interpreter caches and virtual environments
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Run profiles (Run Engine → Profile)
+.catnip/
+
+# Volatile Memory values saved by generated source
+.catnip_memory/
+
+# Compile staging, native executables and their manifest (catnip_build.json)
+build/
+
+# Editor state: block metadata and breakpoints
+*.bkpmeta
+*.breakpoints.json
+breakpoints.json
+
+# Half-written saves left by an interrupted write
+.*.tmp
+
+# Folders that mark themselves as caches (CACHEDIR.TAG), e.g. a model download cache
+/models/
