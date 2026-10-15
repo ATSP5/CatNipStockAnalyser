@@ -2,6 +2,8 @@
 
 Give it a list of tickers and it gives back **STRONG BUY / BUY / HOLD / SELL / STRONG SELL**, with a candlestick chart and the reasoning behind every call.
 
+IMPORTANT! NEVER TREAT THIS AS ADVISE IN REAL INVESTMENTS! IT IS NOT MENT TO BE INVESTITION ADVICE, ALLWAYS VALIDATE RESULTS AND CONSULT EXPERTS!
+
 The verdict comes from three independent views on each ticker:
 
 | View | Weight | What it asks |
