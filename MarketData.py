@@ -34,6 +34,12 @@ class MarketData:
         self.info = {}
         self.shares_history = None
         self.errors = []
+        # Statement currency -> quote currency, 1.0 when they are the same.
+        self.fx = 1.0
+        # Yahoo figures that were wrong but could be recomputed ...
+        self.data_fixes = []
+        # ... and the ones that could not, and were left out of the scoring.
+        self.data_warnings = []
 
     # -- fetching ----------------------------------------------------------
 
@@ -85,6 +91,12 @@ class MarketData:
         except Exception as problem:                # noqa: BLE001
             snapshot.errors.append("fundamentals: %s" % problem)
 
+        # Foreign filers (ASML reports in EUR, TSMC in TWD) are quoted in USD;
+        # the statement figures need converting before they meet the price.
+        if snapshot.needs_fx():
+            snapshot.fx = cls._fetch_fx(snapshot.statement_currency(),
+                                        snapshot.currency())
+
         # The share count over time is what makes buybacks and dilution visible.
         try:
             shares = handle.get_shares_full(start=None, end=None)
@@ -104,6 +116,16 @@ class MarketData:
                 progress(position, len(settings.tickers), ticker)
             results.append(cls.fetch(ticker, settings))
         return results
+
+    @staticmethod
+    def _fetch_fx(source, target):
+        """Units of `target` per one unit of `source`, or None if unavailable."""
+        try:
+            quotes = yf.Ticker("%s%s=X" % (source, target)).history(period="5d")
+            rate = float(quotes["Close"].dropna().iloc[-1])
+        except Exception:                            # noqa: BLE001
+            return None
+        return rate if rate > 0 else None
 
     @staticmethod
     def _clean(frame):
@@ -186,8 +208,22 @@ class MarketData:
         return self.field("sharesOutstanding", "impliedSharesOutstanding")
 
     def free_float(self):
-        """Shares actually available to trade, insiders and blocks excluded."""
-        return self.field("floatShares")
+        """Shares actually available to trade, or None when Yahoo's is impossible.
+
+        A float larger than the share count cannot be true (ASML: 21.28B
+        floating out of 385M) and there is no second source to repair it from.
+        """
+        published = self.field("floatShares")
+        shares = self.shares_outstanding()
+        if published and shares and published > shares * self.FLOAT_TOLERANCE:
+            self._warn(
+                "Free float: Yahoo podaje %s akcji w wolnym obrocie przy %s akcji "
+                "wyemitowanych (%.0f%%) -- to niemożliwe, a innego źródła nie ma; "
+                "pominięty w ocenie (free float, obrót)"
+                % (self._count(published), self._count(shares),
+                   100.0 * published / shares))
+            return None
+        return published
 
     def market_cap(self):
         """Published market cap, or price times share count when absent."""
@@ -207,6 +243,152 @@ class MarketData:
             recent = self.daily["Volume"].tail(60).mean()
             return float(recent) if recent == recent else None
         return None
+
+    # -- fundamentals, checked ---------------------------------------------
+    #
+    # Yahoo divides a USD market cap by EUR or TWD statement figures without
+    # converting them, and builds enterprise value from a broken float count.
+    # Each ratio below is recomputed from its parts in the quote currency;
+    # what cannot be recomputed, or is still beyond any plausible value, is
+    # left out of the scoring and reported in data_warnings.
+
+    FLOAT_TOLERANCE = 1.05                 # float may exceed shares by rounding
+    SANE_LIMITS = {"P/B": 200.0, "P/S": 200.0, "EV/EBITDA": 500.0}
+    SANE_FCF_YIELD = 50.0                  # percent, either sign
+    MINOR_UNITS = {"GBP": "GBP", "ZAC": "ZAR", "ILA": "ILS"}   # GBp, ZAc, ILA
+
+    def statement_currency(self):
+        """Currency of the financial statements (EUR for ASML), or ''."""
+        return self.text("financialCurrency", default="")
+
+    @classmethod
+    def _major(cls, code):
+        code = str(code).upper()
+        return cls.MINOR_UNITS.get(code, code)
+
+    def needs_fx(self):
+        """True when the statements are in another currency than the quote."""
+        source = self.statement_currency()
+        return bool(source) and self._major(source) != self._major(self.currency())
+
+    def fx_label(self):
+        return "%s->%s %.4f" % (self.statement_currency(), self.currency(),
+                                self.fx or 0.0)
+
+    def statement_value(self, *names):
+        """A statement figure converted to the quote currency, or None."""
+        value = self.field(*names)
+        if value is None or self.fx is None:
+            return None
+        return value * self.fx
+
+    def price_to_sales(self):
+        cap = self.market_cap()
+        revenue = self.statement_value("totalRevenue")
+        computed = cap / revenue if cap and revenue and revenue > 0 else None
+        return self._checked(
+            "P/S", computed,
+            self.field("priceToSalesTrailing12Months", "priceToSales"),
+            "kapitalizacja / przychody" + self._fx_note("przychody"))
+
+    def enterprise_to_ebitda(self):
+        cap = self.market_cap()
+        ebitda = self.statement_value("ebitda")
+        computed = None
+        if cap and ebitda:
+            debt = self.statement_value("totalDebt") or 0.0
+            cash = self.statement_value("totalCash") or 0.0
+            computed = (cap + debt - cash) / ebitda
+        return self._checked(
+            "EV/EBITDA", computed, self.field("enterpriseToEbitda"),
+            "EV = kapitalizacja + dług - gotówka (Yahoo liczy EV z błędnej "
+            "liczby akcji w wolnym obrocie)" + self._fx_note("dług, gotówka, EBITDA"))
+
+    def price_to_book(self):
+        """Yahoo's P/B, or for a foreign filer one rebuilt from debt / (D/E).
+
+        Yahoo's bookValue per share is unusable for ADRs (ASML: 1.16), but
+        totalDebt and debtToEquity are consistent, and their ratio is equity.
+        """
+        computed = None
+        if self.needs_fx():
+            cap = self.market_cap()
+            debt = self.statement_value("totalDebt")
+            ratio = self.field("debtToEquity")
+            if cap and debt and ratio and ratio > 0:
+                computed = cap / (debt / (ratio / 100.0))
+        return self._checked(
+            "P/B", computed, self.field("priceToBook"),
+            "kapitał własny = dług / (dług/kapitał)" + self._fx_note("dług"))
+
+    def free_cash_flow_yield(self):
+        """Free cash flow over market cap, percent, or None."""
+        cap = self.market_cap()
+        cash_flow = self.statement_value("freeCashflow")
+        if self.field("freeCashflow") is None or not cap or cap <= 0:
+            return None
+        if cash_flow is None:
+            self._no_fx("FCF yield")
+            return None
+        value = 100.0 * cash_flow / cap
+        if abs(value) > self.SANE_FCF_YIELD:
+            self._warn("FCF yield %.1f%% poza wiarygodnym zakresem (±%.0f%%) -- "
+                       "pominięty w ocenie" % (value, self.SANE_FCF_YIELD))
+            return None
+        if self.needs_fx():
+            self._fix("FCF yield: wolne przepływy w %s przeliczone na %s "
+                      "(kurs %s): %.2f%%" % (self.statement_currency(),
+                                             self.currency(), self.fx_label(), value))
+        return value
+
+    def _checked(self, label, computed, published, how):
+        """Prefer the recomputed ratio; fall back to Yahoo's only when the
+        currencies agree; drop anything beyond SANE_LIMITS."""
+        if computed is None and self.needs_fx():
+            if published is not None:
+                self._no_fx(label)
+            return None
+        value = published if computed is None else computed
+        if computed is not None and published is not None and computed > 0 \
+                and abs(published / computed - 1.0) > 0.10:
+            self._fix("%s: Yahoo podaje %.2f, przeliczono %.2f (%s)"
+                      % (label, published, computed, how))
+        if value is not None and value > self.SANE_LIMITS[label]:
+            self._warn("%s %.1f poza wiarygodnym zakresem (> %.0f) -- pominięty "
+                       "w ocenie" % (label, value, self.SANE_LIMITS[label]))
+            return None
+        return value
+
+    def _fx_note(self, what):
+        if not self.needs_fx():
+            return ""
+        return "; %s w %s przeliczone kursem %s" % (
+            what, self.statement_currency(), self.fx_label())
+
+    def _no_fx(self, label):
+        self._warn("%s pominięty: sprawozdania są w %s, notowania w %s, a kursu "
+                   "lub składników do przeliczenia brak -- wartość Yahoo miesza "
+                   "waluty" % (label, self.statement_currency(), self.currency()))
+
+    def _fix(self, text):
+        if text not in self.data_fixes:
+            self.data_fixes.append(text)
+
+    def _warn(self, text):
+        if text not in self.data_warnings:
+            self.data_warnings.append(text)
+
+    @staticmethod
+    def _count(value):
+        """Compact share count for messages: 21.28B, 385.42M."""
+        for cutoff, unit in ((1e9, "B"), (1e6, "M"), (1e3, "K")):
+            if abs(value) >= cutoff:
+                return "%.2f%s" % (value / cutoff, unit)
+        return "%.0f" % value
+
+    def has_suspect_data(self):
+        """True when some Yahoo figure was impossible and had to be dropped."""
+        return bool(self.data_warnings)
 
     def year_range(self):
         """(low, high) over the trailing 52 weeks, measured from daily candles."""
@@ -259,6 +441,10 @@ class MarketData:
             "year_high": high,
             "bars": self.bars(),
             "errors": list(self.errors),
+            "statement_currency": self.statement_currency(),
+            "fx": self.fx,
+            "data_fixes": list(self.data_fixes),
+            "data_warnings": list(self.data_warnings),
         }
 
     def marketdata(self):

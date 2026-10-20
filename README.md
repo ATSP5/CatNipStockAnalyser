@@ -1,142 +1,273 @@
 # StockAnalyser
 
-Give it a list of tickers and it gives back **STRONG BUY / BUY / HOLD / SELL / STRONG SELL**, with a candlestick chart and the reasoning behind every call.
+Dajesz listę tickerów, dostajesz dla każdego werdykt **STRONG BUY / BUY / HOLD / SELL / STRONG SELL**, wynik liczbowy (*score*), czteropanelowy wykres świecowy z prognozą modelu AI **Chronos-2** oraz uzasadnienie: które sygnały ciągną w górę, które w dół, i jak techniczny score sprawdzał się historycznie.
 
-IMPORTANT! NEVER TREAT THIS AS ADVISE IN REAL INVESTMENTS! IT IS NOT MENT TO BE INVESTITION ADVICE, ALLWAYS VALIDATE RESULTS AND CONSULT EXPERTS!
+> **To nie jest porada inwestycyjna.** Program mechanicznie punktuje publiczne dane z Yahoo Finance. Nie czyta wiadomości, raportów kwartalnych ani komunikatów spółek. Zawsze weryfikuj wyniki i konsultuj decyzje ze specjalistą.
 
-The verdict comes from three independent views on each ticker:
+Projekt jest grafem CatNip (`StockAnalyser.catnip`): każda klasa to osobny blok, a połączenia na płótnie odpowiadają zależnościom między nimi.
 
-| View | Weight | What it asks |
+## Trzy osobne rzeczy: wskaźniki, prognoza, rekomendacja
+
+Program rozdziela trzy rzeczy, które łatwo pomylić na wykresie:
+
+| Co | Skąd się bierze | Czy wpływa na HOLD/BUY/SELL? |
 | --- | --- | --- |
-| **Supply** | 20% | How many shares exist, and is that number growing or shrinking? |
-| **Valuation** | 35% | Is the price high or low — against the business, and against its own history? |
-| **Technical** | 45% | What is the chart doing right now? |
+| **Wskaźniki historyczne** (SMA, Bollinger, RSI, MACD, wolumen, ADX, stochastic…) | `Indicators` → `TechnicalAnalysis` | **Tak** — to blok *technical* |
+| **Wycena i podaż akcji** (P/E, PEG, FCF yield, liczba akcji, short interest…) | `MarketData` → `ValuationAnalysis`, `SupplyAnalysis` | **Tak** — bloki *valuation* i *supply*, z wagą zależną od interwału |
+| **Prognoza ceny Chronos-2** (fioletowy wachlarz) | `PriceForecaster` → `PriceForecast` | **Nie.** Prognoza jest tylko informacją na wykresie i w raporcie; nie wchodzi do score ani do rekomendacji |
 
-Each produces a score from `-100` to `+100`; the weighted composite lands in one of five bands.
+## Jak powstaje score i rekomendacja
 
-## Running it
+1. **Sygnał** (`Score.Signal`) to jedna obserwacja przeliczona na skalę **−100 (maksymalnie niedźwiedzia) … 0 (neutralna) … +100 (maksymalnie bycza)**, zwykle funkcją liniową `Score.ramp` z obcięciem na końcach skali. Każdy sygnał ma wagę w swoim bloku.
+2. **Blok** (`Score.Block`) to średnia ważona swoich sygnałów, również −100…+100. Sygnał, którego nie da się policzyć (brak danych), jest pomijany, a wagi reszty są renormalizowane.
+3. **Score końcowy** to średnia ważona trzech bloków. Wagi zależą od interwału świecy (`Settings.HORIZON_WEIGHTS`):
 
-**From CatNip** — open `StockAnalyser.catnip` and press Run. Set the tickers either by editing `TICKERS` in the **Settings** block or by typing them into the Run Engine's script arguments, which arrive as `sys.argv` exactly like command-line arguments. Charts and the summary table appear in the **Output** tab.
+   | Interwał | technical | valuation | supply |
+   | --- | ---: | ---: | ---: |
+   | intraday, `1d` (domyślny) | 90% | 10% | 0% |
+   | `5d`, `1wk` | 65% | 25% | 10% |
+   | `1mo` | 45% | 35% | 20% |
+   | `3mo` | 30% | 45% | 25% |
 
-**From a terminal** — `run.py` re-derives the block modules from the project file and runs the main block the same way CatNip does, so it can never drift out of step with the canvas:
+   Fundamenty niewiele mówią o jutrzejszej cenie, dlatego na świecach dziennych decyduje prawie wyłącznie wykres.
+4. **Rekomendacja** to przedział, w który wpada score (`Settings.RATING_BANDS`):
 
-```
-python run.py                             # the tickers saved on the canvas
-python run.py AAPL MSFT NVDA              # override them
-python run.py TSLA --horizon 1wk          # weekly candles
-python run.py KO --horizon 1h --no-chart  # hourly, skip the chart
-```
+   | Score | Rekomendacja |
+   | --- | --- |
+   | ≥ +45 | STRONG BUY |
+   | +15 … +45 | BUY |
+   | −15 … +15 | **HOLD** |
+   | −45 … −15 | SELL |
+   | < −45 | STRONG SELL |
+   | brak świec z Yahoo | NO DATA (pusta analiza, score n/a) |
 
-| Argument | Meaning |
+   HOLD oznacza „sygnały się znoszą, brak wyraźnej przewagi”. Nie oznacza, że akcja jest tania, bezpieczna ani że kurs będzie stabilny.
+5. **DATA / confidence** to **pokrycie danych**: jaka część zamierzonych sygnałów faktycznie miała dane (100% = nic nie brakowało). To **nie jest** prawdopodobieństwo trafności rekomendacji.
+
+### Sygnały techniczne i ich kierunek
+
+Uwaga: część sygnałów jest **kontrariańska** (czyta skrajne odczyty jako szansę na powrót do średniej), więc niski RSI *podnosi* score, a nie go obniża.
+
+| Sygnał | Waga | Jak liczony | Kierunek |
+| --- | ---: | --- | --- |
+| Trend vs średnie | 2.5 | odległość od SMA50 (±8%) i SMA200 (±15%) + golden/death cross (±60) | trendowy |
+| Nachylenie SMA50 | 1.5 | nachylenie z 20 świec, ±0,25% na świecę | trendowy |
+| MACD (12, 26, 9) | 1.5 | histogram jako % ceny, ±1%; ±35 pkt za świeże przecięcie | trendowy |
+| RSI (14, Wilder) | 1.5 | RSI 30 → +100, RSI 70 → −100 | **kontrariański** |
+| Momentum (~90 dni) | 1.5 | zmiana ceny z ~62 sesji, ±20% | trendowy |
+| Pozycja w Bollinger (20, 2) | 1.0 | %B 0 (dolne pasmo) → +100, 1 (górne) → −100 | **kontrariański** |
+| Wolumen (OBV) | 1.0 | nachylenie OBV z 30 świec; ×1,25 przy wolumenie > 1,5× średniej | trendowy |
+| Siła trendu (ADX 14) | 1.0 | siła z ADX 10–40, kierunek z DI+ vs DI− | trendowy |
+| Stochastic %K (14, 3) | 0.75 | 20 → +100, 80 → −100 | **kontrariański** |
+| Obsunięcie od szczytu | 1.0 | −3…−15% = okazja (+45), głębiej = sygnał problemu (do −70) | mieszany |
+| Zmienność (ATR 14) | 0.75 | ATR względem własnej normy spółki: 0,7× → +100, 1,8× → −100 | ryzyko |
+
+Pełne listy sygnałów wyceny (13) i podaży (8) z wagami są na stronach dokumentacji bloków `ValuationAnalysis` i `SupplyAnalysis`.
+
+## Przykład: ASML, świece dzienne, uruchomienie 20.10.2026
+
+Wykres `output/ASML_1d.png` z tytułem `ASML -- 1 day candles | ASML Holding N.V. | score +9.6 | forecast 90 candles: -1.0%` i etykietą **HOLD** był analizowany w zewnętrznej rozmowie z ChatGPT, która opierała się wyłącznie na obrazku. Poniżej odpowiedzi na wątpliwości z tamtej rozmowy, na podstawie kodu i pliku `output/analysis.json` z tego samego uruchomienia.
+
+### Dokładne wartości (zamiast odczytu z obrazka)
+
+| Wielkość | Wartość |
 | --- | --- |
-| *(positional)* | Tickers. Yahoo symbols, so `0700.HK`, `SAP.DE`, `^GSPC` and `BTC-USD` all work |
-| `--horizon` | Candle width. **Default `1d`** |
-| `--lookback` | How far back to fetch (`6mo`, `2y`, `max`). Defaults per horizon |
-| `--weights` | `technical,valuation,supply`, e.g. `0.6,0.3,0.1`. Pins the weights; by default they follow the horizon (1d: 90/10/0) |
-| `--candles` | How many candles to draw (default 180) |
-| `--output` | Where charts and files go (default `output/`) |
-| `--no-chart` | Skip chart rendering |
-| `--no-backtest` | Skip the walk-forward backtest |
+| Ostatnie zamknięcie | 1 647,12 USD (500 świec dziennych, lookback 2 lata) |
+| Względem SMA50 / SMA200 | −5,2% / +4,2%, golden cross (SMA50 > SMA200), SMA50 rośnie 0,087% na świecę |
+| RSI (14) | 38,6 |
+| Histogram MACD | −20,44 (−1,24% ceny) |
+| Bollinger %B | 0,09 (tuż nad dolnym pasmem) |
+| Stochastic %K | 19,0 |
+| ADX | 18,0 — brak wyraźnego trendu |
+| Momentum | −8,6% w 62 sesjach |
+| Obsunięcie od szczytu | −17,2% |
+| ATR | 3,25% ceny, 1,00× normy ASML |
+| Wolumen ostatniej sesji | 0,85× średniej 20-sesyjnej |
 
-`STOCKANALYSER_TICKERS="AAPL,MSFT"` works too. `STOCKANALYSER_DEBUG=1` restores yfinance's own logging and prints full tracebacks.
+### „Co oznacza score +9.6 i jaka jest skala?”
 
-## The candle horizon
+Skala to **−100…+100**, próg BUY to +15, próg SELL to −15. Wynik +9,6 jest lekko dodatni, ale mieści się w strefie neutralnej (5,4 pkt poniżej BUY). Rachunek:
 
-The horizon is the width of a single candle, and **the default is `1d`** — one candle per trading day.
+| Blok | Score bloku | Waga przy `1d` | Wkład w score |
+| --- | ---: | ---: | ---: |
+| technical | +11,5 | 90% | +10,3 |
+| valuation | −7,3 | 10% | −0,7 |
+| supply | +47,6 | 0% | 0,0 |
+| **razem** | | | **+9,6 → HOLD** |
 
-```
-1m  2m  5m  15m  30m  60m  1h  90m      intraday
-1d  5d  1wk  1mo  3mo                   daily and longer
-```
+Pokrycie danych: 100% we wszystkich trzech blokach.
 
-Every indicator window is counted in *candles*, so the horizon is what decides the timeframe being judged: a 50-candle average means fifty days at `1d` and fifty hours at `1h`. Each horizon carries its own sensible lookback, and Yahoo's caps on intraday history are respected (a minute chart cannot reach back beyond seven days).
+Technical +11,5 to wypadkowa przeciwnych sygnałów:
 
-Intraday runs also fetch two years of daily candles in the background, so a 5-minute chart still knows where its 52-week range sits.
+- **na plus:** stochastic 19 (+100), Bollinger %B 0,09 (+81), RSI 38,6 (+57, kontrariańsko), zmienność w normie (+45), umiarkowane obsunięcie (+37), rosnąca SMA50 (+35), trend vs średnie (+8);
+- **na minus:** MACD (−100), momentum −8,6% (−43), wolumen/OBV (−8);
+- **zero:** ADX 18 (brak trendu).
 
-## Output
+### „Czy HOLD wynika z reguł, czy z interpretacji?”
 
-A ranked table, best call first:
+Z reguł: score +9,6 wpada w przedział −15…+15, więc `Settings.rating_for` zwraca HOLD. Ocena ChatGPT („rozsądna interpretacja przy niejednoznacznych sygnałach”) zgadza się z mechanizmem. Jedna różnica: ChatGPT czytał RSI ≈ 40 jako słabość. W tym systemie RSI jest sygnałem kontrariańskim, więc RSI 38,6 **podnosi** score (blisko wyprzedania = potencjalne odbicie). Słabość momentum wnoszą natomiast MACD i 90-dniowe momentum.
 
-```
-    TICKER   CALL           SCORE   CONF     TECH VALUATION   SUPPLY
---------------------------------------------------------------------
-+   NVDA     BUY            +23.5   100%    +27.8      -4.5    +62.7
-=   KO       HOLD           +14.6   100%    +31.9     -33.6    +60.2
-```
+### „Czy prognoza wpływa na rekomendację?”
 
-Then a card per ticker with each block's score, the three strongest arguments each way, and the reasoning:
+Nie. HOLD powstaje wyłącznie z bloków technical, valuation i supply. Prognoza Chronos-2 jest liczona osobno (`PriceForecaster`) i tylko rysowana na wykresie oraz wypisywana w raporcie.
 
-```
-  Supporting a buy:
-      +96  Share count trend (supply)  -4.73% over the past year -- buying back stock
-      +58  Trend vs moving averages    +2.4% vs SMA50, +12.7% vs SMA200, golden cross
-  Arguing against:
-     -100  PEG ratio (valuation)       2.47 (near 1.0 is priced fairly for its growth)
-```
+### „Czy −1,0% jest policzone poprawnie i od czego?”
 
-Plus `output/<TICKER>_<horizon>.png`, `output/analysis.json` (complete, every signal) and `output/analysis.csv` (one row per ticker).
+`PriceForecast.change_pct()` = mediana prognozy na ostatniej przyszłej świecy ÷ ostatnie rzeczywiste zamknięcie − 1:
+1 630,87 / 1 647,12 − 1 = **−0,99%**, zaokrąglone do −1,0%. To zmiana *mediany* po 90 świecach, a nie oczekiwany zwrot ani prawdopodobieństwo spadku.
 
-## Reading the result
+### „90 świec to 90 dni?”
 
-**Expect the blocks to disagree.** A stock at the top of its 52-week range on a strong uptrend scores well technically and badly on valuation. The HOLD that comes out is the honest answer, not a failure to decide — the interesting cases are where all three agree.
+90 **sesji** przy świecach `1d`, czyli ok. 4 miesięcy. Daty przyszłych świec są wyznaczane jako dni robocze (`freq="B"`), bez świąt giełdowych, więc data końca (22.02.2027) jest przybliżona: rzeczywista 90. sesja wypada kilka dni później.
 
-**Watch the data coverage figure.** It reports how much of the intended evidence actually arrived, not how likely the call is to be right. A fully covered HOLD and a HOLD that had nothing to work with are very different statements.
+### „Co to są pasma 10–90% i 24–76% (median ±26 pp)?”
 
-**Check the backtest before trusting a BUY.** Each card shows the technical score's rank IC against the next candle's return, plus a long-on-BUY strategy (after costs) against buy & hold. An IC near zero, or a strategy that trails buy & hold, means the call carries no edge.
+To kwantyle rozkładu prognozowanego przez Chronos-2 dla każdej przyszłej świecy:
 
-**The reason list is ranked by weighted contribution**, not raw score, so a moderate reading on a heavy signal can outrank an extreme reading on a light one. That is why the printed numbers are not always in descending order.
+- **Forecast median** — kwantyl 0,5;
+- **Forecast 10–90%** — kwantyle 0,1 i 0,9, środkowe 80% rozkładu (na końcu horyzontu: 988–2 339 USD);
+- **Forecast 24–76% (median ±26 pp)** — kwantyle 0,24 i 0,76, środkowe 52% rozkładu (1 264–2 001 USD). „±26 pp” oznacza ±26 **punktów procentowych prawdopodobieństwa** wokół kwantyla 50%, a **nie** ±26% ceny.
 
-## The graph
+Poziomy ustawia `PriceForecaster.QUANTILES` i `INNER_QUANTILES`. Przedziały opisują rozkład według modelu i bez walidacji (patrz niżej) nie są gwarancją pokrycia.
 
-```
-Settings ─────────────────────────────────────────────┐
-Score ──────┬─────┬─────┬──────────────┐              │
-Indicators ─┼─────┼─────┼──────────────┤              │
-            │     │     │              │              │
-   TechnicalAnalysis    │              │              │
-   ValuationAnalysis ───┼──> Recommendation ──> Report (main)
-   SupplyAnalysis ──────┘              │              │
-                          MarketData ──┴──────────────┤
-                          CandleChart ────────────────┘
-```
+### „Czy tak szeroki wachlarz to błąd?”
 
-| Block | Role |
-| --- | --- |
-| `Settings` | Tickers, horizon, weights, output paths |
-| `Score` | The `-100..+100` scale, `Signal` and `Block` |
-| `Indicators` | RSI, MACD, Bollinger, ATR, ADX, OBV, stochastic — pure pandas |
-| `MarketData` | Fetches candles, fundamentals and share count history |
-| `TechnicalAnalysis` | 11 signals on the chart |
-| `ValuationAnalysis` | 13 signals on price and quality |
-| `SupplyAnalysis` | 8 signals on share count and ownership |
-| `Recommendation` | Weights the three into one call |
-| `Backtest` | Walk-forward IC and long-on-BUY vs buy & hold for the technical score |
-| `CandleChart` | The four-panel PNG |
-| `Report` | Runs everything and prints it |
+Nie. Model dostaje wyłącznie ostatnie ceny zamknięcia (tu 500 świec; limit `MAX_CONTEXT` = 2 048), bez wolumenu, wiadomości i fundamentów. Niepewność narasta z każdą świecą, a ASML ma wysoką zmienność (ATR ≈ 3,25% dziennie). Szeroki wachlarz wiernie oddaje to, że cena za 4 miesiące jest w dużej mierze nieprzewidywalna.
 
-Each block has a documentation page (`Settings.md`, `Score.md`, …) that CatNip shows in the editor.
+### „Jak powstaje prognoza — Chronos-2 dostrojony czy bez treningu?”
 
-CatNip compiles a program from the main block plus everything upstream of it: each block is written out as `<Name>.py` beside the project, that folder goes on `sys.path`, and the main block runs as `__main__`. **Blocks reach each other by ordinary Python import**, so every block that uses another imports it at the top — `Recommendation` opens with `from Score import Score`, and so on. The wires on the canvas describe that same dependency structure.
+Bez treningu. Używany jest wytrenowany model `amazon/chronos-2` w trybie **zero-shot**: nie jest dostrajany na danych ASML ani żadnej innej spółki. Wagi (~0,5 GB) są pobierane z Hugging Face do folderu `models/`.
 
-The `.py` files in the project root are generated from the `.catnip` and are overwritten on every save and every `run.py`; edit the blocks, not those files.
+### „Czy model i score były testowane historycznie?”
 
-## Setup
+- **Score techniczny — tak.** Blok `Backtest` robi test walk-forward: dla każdej świecy po rozgrzewce (200 świec) przelicza blok technical tylko na danych do tej świecy włącznie (wszystkie wskaźniki są przyczynowe, bez look-ahead) i porównuje score ze zwrotem następnej świecy. Dla ASML (299 świec): **rank IC −0,013 (t = −0,23)**, czyli brak wartości predykcyjnej. Strategia „long, gdy score ≥ +15”, z kosztem 10 bp za każdą zmianę pozycji, dała **+66,5% wobec +128,4% buy & hold** (16 transakcji, 81% czasu w pozycji, 56% trafień). IC łączne dla wszystkich 16 tickerów z tego uruchomienia: **−0,0095 na 4 784 świecach**. Wniosek: w tej próbie score techniczny nie daje przewagi, a HOLD należy czytać jako „brak sygnału”, nie jako przemyślaną rekomendację.
+- **Bloki valuation i supply — nie.** Opierają się na bieżącym snapshocie fundamentów z Yahoo, którego nie da się odtworzyć wstecz bez look-ahead.
+- **Prognoza Chronos-2 — nie (jeszcze).** Proponowany plan walidacji, zgodny z sugestią z rozmowy:
+  1. dla wielu dat w przeszłości generować prognozę 90 sesji naprzód wyłącznie z danych dostępnych w danym dniu;
+  2. mierzyć błąd mediany (MAE/RMSE prognozowanego **zwrotu**);
+  3. porównać z benchmarkami: zerowa zmiana (random walk) i prosty trend;
+  4. sprawdzić kalibrację: w paśmie 10–90% powinno wypadać ok. 80% rzeczywistych cen, a w 24–76% ok. 52%;
+  5. uwzględnić, że okna 90-sesyjne się nakładają (obserwacje zależne), i nie stroić modelu na okresie, na którym raportuje się wynik.
 
-Dependencies are `yfinance`, `pandas`, `numpy` and `matplotlib` — a virtual environment is already set up in `.venv`:
+### „Szara linia wolumenu, okresy RSI i MACD?”
 
-```
-.venv/Scripts/python.exe run.py AAPL
-```
+Szara linia to 20-sesyjna średnia wolumenu (`VOL_SMA20`). RSI ma okres 14 (wygładzanie Wildera). MACD ma parametry 12/26/9 (EMA). Bollinger to 20 sesji ± 2 odchylenia standardowe (populacyjne). Kolory SMA: 20 niebieska, 50 pomarańczowa, 200 fioletowa.
 
-To recreate it:
+### „Czy uwzględniono fundamenty, np. wyniki za Q3 2026?”
+
+Tylko jako snapshot wskaźników z Yahoo (P/E, PEG, marże, rekomendacje analityków…), z wagą 10% przy świecach dziennych. Program nie czyta raportów, wiadomości ani komunikatów spółki (np. o mocach produkcyjnych czy popycie), więc ani score, ani prognoza ich nie widzą.
+
+### Błędne dane Yahoo w tym przykładzie i co z nimi zrobiono
+
+W uruchomieniu z 20.10.2026 Yahoo podał dla ASML wartości niemożliwe: **P/B 1 415×**, **EV/EBITDA 2 166×**, **free float 5 520%**. Trafiły one wtedy do oceny (−100 / −60) i zaniżały blok valuation (−7,3). Przyczyny:
+
+- ASML jest notowany w **USD**, a sprawozdania ma w **EUR**. Yahoo dzieli kapitalizację w USD przez przychody, FCF i EBITDA w EUR bez przeliczenia. Ten sam błąd dotyczy np. TSMC (TWD): Yahoo podaje P/S 0,44 zamiast ok. 14.
+- EV Yahoo liczy jako `floatShares × cena`, a `floatShares` jest błędne (21,28 mld akcji przy 385 mln wyemitowanych). Stąd EV 35 bln USD.
+- `bookValue` na akcję (1,16) jest dla ADR bezużyteczne, więc P/B wychodzi absurdalne.
+
+Od tej wersji `MarketData` **naprawia** to, co się da: przelicza dane ze sprawozdań na walutę notowań kursem z Yahoo (`EURUSD=X`), liczy EV jako kapitalizacja + dług − gotówka, a kapitał własny odtwarza z długu i wskaźnika dług/kapitał. Dla ASML wychodzi wtedy (przy kursie ≈ 1,16) **P/S ≈ 13,9, EV/EBITDA ≈ 33, P/B ≈ 25, FCF yield ≈ 1,9%**. Liczby z tabel powyżej pochodzą z uruchomienia sprzed poprawki; po niej blok valuation ASML będzie wyższy.
+
+Tego, czego naprawić się nie da (free float ASML: brak drugiego źródła), program **nie ocenia**. Ticker dostaje wtedy:
+
+- znak `!` w tabeli podsumowania i notatkę pod nią,
+- czerwony napis **„! Możliwe błędne dane”** na wykresie, pod rekomendacją,
+- w karcie tickera sekcję „! Możliwe błędne dane -- pominięte w ocenie” z wyjaśnieniem (co Yahoo podał i dlaczego to niemożliwe) oraz sekcję „Dane poprawione” z każdą przeliczoną wartością (Yahoo vs po przeliczeniu),
+- kolumny `data_warnings` / `data_fixes` w CSV i pola `market.data_warnings` / `market.data_fixes` w JSON.
+
+Wartość uznaje się za niemożliwą, gdy free float przekracza liczbę akcji, P/B lub P/S > 200, EV/EBITDA > 500, |FCF yield| > 50%, albo gdy waluty się różnią, a kursu lub składników do przeliczenia brak.
+
+## Wymagania
+
+- **Python 3.10+.** Domyślne „Local Shell (system Python)” w CatNip na tej maszynie to Python 3.5, który nie uruchomi bloków. Wybierz `.venv` / Python 3.10+.
+- Pakiety (`requirements.txt`): `yfinance>=0.2.40`, `pandas>=2.0`, `numpy>=1.24`, `matplotlib>=3.7`, `chronos-forecasting>=2.0` (pociąga torch i transformers).
+- Dostęp do internetu: Yahoo Finance oraz jednorazowe pobranie wag Chronos-2 z Hugging Face.
+- GPU (CUDA) opcjonalne. Bez niego Chronos-2 działa na CPU, wolniej.
+
+## Instalacja
 
 ```
 python -m venv .venv
 .venv/Scripts/python.exe -m pip install -r requirements.txt
 ```
 
-> **Note:** the blocks need **Python 3.10+**. CatNip's default *Local Shell (system Python)* on this machine resolves to Python 3.5, which cannot run them — pick **Python 3.10** or **venv:3.10** as the environment before running the graph.
+W CatNip: w ustawieniach głównego bloku wybierz instalację pakietów **Manual** i wpisz `chronos-forecasting`. Automatyczna instalacja zamienia `import chronos` na niewłaściwy pakiet PyPI `chronos`.
 
-## Scope
+## Uruchomienie
 
-This scores public data mechanically. It has no view on news, filings, guidance or anything else that is not in a price series or a Yahoo fundamentals field, and the weights and thresholds are reasonable defaults rather than tuned parameters. The built-in backtest covers only the technical block, because fundamentals are a current snapshot that cannot be replayed without look-ahead. Treat the output as a structured starting point for your own research, not as investment advice.
+**W CatNip:** otwórz `StockAnalyser.catnip` i uruchom graf (blok główny: `Report`). Tickery i argumenty można podać w polu argumentów Run Engine (trafiają do `sys.argv`). Wykresy i tabela pojawiają się w zakładce Output.
+
+**Z terminala:**
+
+```
+.venv/Scripts/python.exe main_1.py                       # tickery z bloku Settings
+.venv/Scripts/python.exe main_1.py ASML NVDA --future 90 # wybrane tickery, prognoza 90 świec
+.venv/Scripts/python.exe tools/run.py TSLA --horizon 1wk # odtwarza moduły z .catnip i uruchamia
+```
+
+`main_1.py` i pliki `<Blok>.py` w katalogu projektu są generowane z `.catnip`. Edytuj bloki w CatNip, a nie te pliki.
+
+## Konfiguracja
+
+| Argument / ustawienie | Znaczenie | Zakres / domyślnie |
+| --- | --- | --- |
+| tickery (argumenty pozycyjne) | symbole Yahoo, np. `ASML`, `SAP.DE`, `0700.HK`, `^GSPC`, `BTC-USD` | domyślnie lista w `Settings.__init__`; zmienna `STOCKANALYSER_TICKERS="A,B"` też działa; argument o niedozwolonej składni jest zgłaszany jako zignorowany; symbol poprawny składniowo, ale nieznany Yahoo, dostaje pustą analizę NO DATA |
+| `--horizon` / `--interval` | szerokość świecy | `1m 2m 5m 15m 30m 60m 1h 90m 1d 5d 1wk 1mo 3mo`; domyślnie `1d`; inna wartość = błąd |
+| `--lookback` / `--period` | ile historii pobrać | np. `6mo`, `2y`, `max`; domyślnie zależnie od interwału (`1d`: 2y); Yahoo ogranicza historię intraday |
+| `--future` | ile świec naprzód prognozuje Chronos-2 | `0…512`; `0` wyłącza prognozę; domyślnie **90** (parametr `future_horizon` konstruktora `Settings` nadpisuje stałą `FUTURE_HORIZON = 30`) |
+| `--weights` | wagi `technical,valuation,supply`, np. `0.6,0.3,0.1` | suma > 0, normalizowane; domyślnie zależne od interwału |
+| `--candles` | ile świec rysować | domyślnie 180 |
+| `--output` / `-o` | katalog wyników | domyślnie `output/` |
+| `--no-chart` | bez wykresów | |
+| `--no-backtest` | bez testu walk-forward | |
+| `RISK_FREE_RATE` | próg dla wskaźników typu yield (FCF, dywidenda) | 0,04 |
+| `COST_BPS` | koszt transakcji w backteście, w jedną stronę | 10 bp |
+| `STOCKANALYSER_DEBUG=1` | pełne logi yfinance i tracebacki | |
+
+## Wyniki
+
+- tabela rankingowa w konsoli (najlepszy score na górze) i karta każdego tickera: score bloków, wagi i wkłady, backtest, prognoza (mediana, pasma, zmiana %), dane poprawione i możliwe błędne dane, po trzy najsilniejsze argumenty za i przeciw, uwagi o danych;
+- **tickery bez danych nie są ukrywane.** Symbol, dla którego Yahoo nie zwraca świec (w domyślnej liście `FB2A` i `SMSN`), dostaje pustą analizę **NO DATA**: wiersz na końcu tabeli ze score `n/a` i DATA 0%, kartę z powodem i trzema blokami `brak danych`, pusty wykres z napisem „Brak danych” oraz wiersze w JSON/CSV. W terminalu pojawia się notatka z powodem i podpowiedzią, by sprawdzić symbol w Yahoo (np. sufiks giełdy `.DE`, `.KS`). Powtórzony ticker (w domyślnej liście dwa razy `MU`) jest analizowany raz;
+- `output/<TICKER>_<interwał>.png` — wykres: świece + SMA 20/50/200 + Bollinger + prognoza, wolumen, RSI, MACD;
+- `output/analysis.json` — wszystko, łącznie z każdym sygnałem; `output/analysis.csv` — jeden wiersz na ticker.
+
+## Struktura projektu (bloki)
+
+```
+Score, Indicators ──> TechnicalAnalysis, ValuationAnalysis
+Score             ──> SupplyAnalysis
+Score, Indicators, TechnicalAnalysis, ValuationAnalysis, SupplyAnalysis ──> Recommendation
+Score, TechnicalAnalysis ──> Backtest
+Settings ──> PriceForecaster
+Settings, MarketData, Recommendation, CandleChart, Backtest, PriceForecaster ──> Report (main)
+PriceForecast — rekord danych (dataclass), bez połączeń
+```
+
+| Blok | Do czego służy |
+| --- | --- |
+| `Settings` | tickery, interwał, lookback, wagi bloków, progi rekomendacji, horyzont prognozy, argumenty wiersza poleceń |
+| `Score` | wspólna skala −100…+100, klasy `Signal` i `Block`, pokrycie danych |
+| `Indicators` | matematyka wskaźników w czystym pandas: SMA, EMA, RSI, MACD, Bollinger, ATR, ADX, OBV, stochastic, drawdown |
+| `MarketData` | pobiera z Yahoo świece, fundamenty i historię liczby akcji; przelicza dane ze sprawozdań na walutę notowań i odrzuca wartości niemożliwe |
+| `TechnicalAnalysis` | 11 sygnałów z wykresu → blok *technical* |
+| `ValuationAnalysis` | 13 sygnałów wyceny i jakości → blok *valuation* |
+| `SupplyAnalysis` | 8 sygnałów podaży akcji i akcjonariatu → blok *supply* |
+| `Recommendation` | łączy trzy bloki w score, rekomendację i pokrycie danych; zbiera argumenty za i przeciw; dla tickera bez świec zwraca pusty werdykt NO DATA |
+| `Backtest` | test walk-forward score technicznego: rank IC, strategia BUY-only vs buy & hold (do wejścia `Score` bloku `Report`) |
+| `PriceForecaster` | ładuje Chronos-2 i liczy kwantyle przyszłych cen zamknięcia |
+| `PriceForecast` | rekord danych z prognozą jednego tickera (mediana, pasma, `change_pct`) |
+| `CandleChart` | rysuje czteropanelowy wykres PNG (z „! Możliwe błędne dane”, gdy trzeba; pusty wykres dla NO DATA) |
+| `Report` | blok główny: uruchamia potok, drukuje raport, zapisuje JSON/CSV |
+
+Każdy blok ma własną stronę dokumentacji (`<Blok>.md`), którą CatNip pokazuje w edytorze.
+
+## Ograniczenia
+
+- Wagi sygnałów i progi rekomendacji to rozsądne wartości domyślne, a nie parametry zoptymalizowane na danych.
+- Backtest obejmuje tylko blok technical i zwrot **następnej świecy**. Nie mówi nic o horyzoncie 90 sesji z prognozy.
+- Prognoza Chronos-2 nie jest jeszcze walidowana (patrz plan wyżej).
+- Dane fundamentalne Yahoo bywają błędne, szczególnie dla ADR. Program przelicza waluty i odrzuca wartości niemożliwe (znak „!”), ale błąd mieszczący się w wiarygodnym zakresie przejdzie niezauważony.
+- Prognozowane daty pomijają święta giełdowe, a dla intraday także godziny sesji.
+
+## Licencja
+
+Projekt nie ma licencji.

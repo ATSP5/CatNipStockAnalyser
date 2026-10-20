@@ -11,6 +11,9 @@ see Settings.HORIZON_WEIGHTS). The composite lands in one of five bands:
 A block that produced nothing is dropped and the remaining weights are
 renormalised, so a ticker with no fundamentals still gets a verdict -- with a
 confidence figure that says how much of the intended evidence was really there.
+A ticker with no usable candles at all still gets a verdict: an empty one,
+rated NO DATA, with every block blank and the reason in its notes -- so it is
+shown in the report rather than silently left out.
 That figure is data coverage only: 1.0 means nothing was missing, not that the
 call is likely to be right. The bands themselves are untested until the
 Backtest block says otherwise.
@@ -34,10 +37,12 @@ class Recommendation:
         # One enriched frame, shared by the technicals and the chart.
         self.frame = Indicators.enrich(market.history) if market.ok() else None
 
-        self.technical = TechnicalAnalysis(market, settings, self.frame) \
-            if self.frame is not None else None
-        self.valuation = ValuationAnalysis(market, settings, self.frame)
-        self.supply = SupplyAnalysis(market, settings)
+        # Without candles every block stays empty: the verdict is NO DATA.
+        self.technical = self.valuation = self.supply = None
+        if self.frame is not None:
+            self.technical = TechnicalAnalysis(market, settings, self.frame)
+            self.valuation = ValuationAnalysis(market, settings, self.frame)
+            self.supply = SupplyAnalysis(market, settings)
 
         self.blocks = {}
         for analysis in (self.technical, self.valuation, self.supply):
@@ -118,12 +123,21 @@ class Recommendation:
         collected.extend("data: %s" % problem for problem in self.market.errors)
         return collected
 
+    def has_data(self):
+        """False for the empty NO DATA verdict of a ticker without candles."""
+        return self.rating != "NO DATA"
+
+    def missing_reason(self):
+        """Why the analysis is empty, or ''."""
+        return "" if self.has_data() else (self.market.problem() or "no data")
+
     def headline(self):
         """One line summarising the call, for the summary table."""
         price = self.market.last_price()
         shown = "n/a" if price is None else "%.2f" % price
-        return "%-8s %-11s %+6.1f  conf %3.0f%%  %s %s" % (
-            self.ticker, self.rating, self.score, 100 * self.confidence,
+        score = "%+6.1f" % self.score if self.has_data() else "   n/a"
+        return "%-8s %-11s %s  conf %3.0f%%  %s %s" % (
+            self.ticker, self.rating, score, 100 * self.confidence,
             shown, self.market.currency(),
         )
 
@@ -131,7 +145,7 @@ class Recommendation:
         return {
             "ticker": self.ticker,
             "rating": self.rating,
-            "score": round(self.score, 1),
+            "score": round(self.score, 1) if self.has_data() else None,
             "confidence": round(self.confidence, 2),
             "horizon": self.settings.horizon,
             "market": self.market.to_dict(),
@@ -149,9 +163,7 @@ class Recommendation:
 
     @classmethod
     def for_market(cls, market, settings):
-        """Build a verdict, or None when the ticker could not be fetched."""
-        if not market.ok():
-            return None
+        """Build a verdict -- an empty NO DATA one when nothing was fetched."""
         return cls(market, settings)
 
     def recommendation(self):

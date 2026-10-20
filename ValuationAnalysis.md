@@ -2,6 +2,8 @@ Answers whether the price is high or low — against earnings, against assets, a
 
 The *multiples* — P/E, PEG, P/B, P/S, EV/EBITDA — say whether the price is high relative to the business. The *positional* signals — 52-week range and analyst target — say whether it is high relative to its own history. The stretch from the 200-day average and the yearly price z-score used to sit here too. They were removed because they repeated the technical trend signal and the range position with the opposite sign, so the same fact was counted twice and cancelled itself out. The *quality* signals — margin, return on equity, leverage — are the check on both, because a low multiple on a deteriorating business is a trap rather than a bargain.
 
+P/B, P/S, EV/EBITDA i FCF yield nie są brane wprost z Yahoo, tylko z metod kontrolnych MarketData (`price_to_book`, `price_to_sales`, `enterprise_to_ebitda`, `free_cash_flow_yield`). Te przeliczają dane ze sprawozdań na walutę notowań i odrzucają wartości nieprawdopodobne. Wskaźnik odrzucony (`None`) nie jest oceniany, a wagi pozostałych są renormalizowane. Dla ASML zamiast P/B 1415×, EV/EBITDA 2166× i P/S 16,1 blok dostaje teraz około 25×, 33× i 13,9 (przy kursie EUR→USD ≈ 1,16).
+
 When Yahoo publishes no fundamentals at all, the multiples simply drop out and the block scores on price position alone, with the reduced coverage carried through to the run's confidence figure.
 
 ## WEIGHTS
@@ -26,17 +28,25 @@ Yahoo's PEG rests on a growth forecast it does not publish. The trailing/forward
 
 Price to book value. Most meaningful for asset-heavy businesses and close to meaningless for software.
 
+Źródło: `MarketData.price_to_book()`. Przy spółce raportującej w innej walucie P/B jest odtwarzane z długu i D/E. Powyżej 200 jest pomijane jako błąd danych.
+
 ## ps
 
 Price to trailing revenue. The fallback multiple for a company with no earnings to divide by.
+
+Źródło: `MarketData.price_to_sales()`, czyli kapitalizacja / przychody przeliczone na walutę notowań. Powyżej 200 jest pomijane.
 
 ## ev_ebitda
 
 Enterprise value to EBITDA — a P/E that accounts for debt, which is why it is weighted above P/B and P/S. Negative EBITDA is noted rather than scored.
 
+Źródło: `MarketData.enterprise_to_ebitda()`, gdzie EV = kapitalizacja + dług − gotówka, w walucie notowań. Powyżej 500 jest pomijane.
+
 ## fcf_yield
 
 Free cash flow as a percentage of market cap, scored against the risk-free rate from the settings. This is the most direct statement of what the business actually returns for the price paid.
+
+Źródło: `MarketData.free_cash_flow_yield()`, FCF przeliczone na walutę notowań. Poza ±50% jest pomijane.
 
 ## dividend
 

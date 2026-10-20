@@ -6,6 +6,10 @@ individual signals drove the number, and how the technical score has fared in
 a walk-forward backtest, and -- with a PriceForecaster -- where the AI model
 expects the price to be FutureHorizon candles ahead. Writes the same content to
 JSON and CSV beside the charts.
+
+Nothing is hidden: a ticker Yahoo returns no candles for is still listed, as an
+empty NO DATA analysis with the reason, and a ticker whose fundamentals held an
+impossible value is marked "!" in the table, on its chart and in its card.
 """
 
 import csv
@@ -34,6 +38,7 @@ class Report:
         "STRONG SELL": "--",
         "NO DATA": "?",
     }
+    SUSPECT_MARK = "!"
 
     def __init__(self, settings=None, draw=None, quiet=False, forecaster=None):
         self.settings = settings or Settings()
@@ -62,12 +67,12 @@ class Report:
             try:
                 market = MarketData.fetch(ticker, self.settings)
             except Exception as problem:            # noqa: BLE001
-                self.skipped.append((ticker, "fetch failed: %s" % problem))
-                continue
+                market = MarketData(ticker, self.settings)
+                market.errors.append("fetch failed: %s" % problem)
 
             if not market.ok():
-                self.skipped.append((ticker, market.problem()))
-                continue
+                self._say("    brak danych dla %s -- %s; pokazuję pustą analizę"
+                          % (market.ticker, market.problem()))
 
             try:
                 verdict = Recommendation(market, self.settings)
@@ -79,7 +84,7 @@ class Report:
 
             self.verdicts.append(verdict)
 
-            if self.settings.backtest:
+            if self.settings.backtest and verdict.has_data():
                 try:
                     self.backtests[verdict.ticker] = Backtest(verdict, self.settings)
                 except Exception as problem:        # noqa: BLE001
@@ -96,8 +101,8 @@ class Report:
                 except Exception as problem:        # noqa: BLE001
                     verdict.market.errors.append("chart: %s" % problem)
 
-        # Strongest buy first, strongest sell last.
-        self.verdicts.sort(key=lambda v: v.score, reverse=True)
+        # Strongest buy first, strongest sell last, empty analyses at the end.
+        self.verdicts.sort(key=lambda v: (v.has_data(), v.score), reverse=True)
 
         self._say("")
         self.print_summary()
@@ -144,11 +149,12 @@ class Report:
         self._say("-" * len(header))
 
         for verdict in self.verdicts:
-            self._say("%-3s %-8s %-11s %+8.1f %5.0f%% %8s %9s %8s" % (
-                self.RATING_MARK.get(verdict.rating, ""),
+            self._say("%-3s %-8s %-11s %8s %5.0f%% %8s %9s %8s" % (
+                self.RATING_MARK.get(verdict.rating, "")
+                + (self.SUSPECT_MARK if verdict.market.has_suspect_data() else ""),
                 verdict.ticker,
                 verdict.rating,
-                verdict.score,
+                self._cell(verdict.score if verdict.has_data() else None),
                 100 * verdict.confidence,
                 self._cell(verdict.block_score("technical")),
                 self._cell(verdict.block_score("valuation")),
@@ -162,6 +168,7 @@ class Report:
         if pooled is not None:
             self._say("Backtest: technical score vs next-candle return, rank IC "
                       "%+.3f over %d candles across all tickers." % (pooled, samples))
+        self._print_data_notes()
         self._print_skipped()
 
     def print_details(self):
@@ -184,14 +191,19 @@ class Report:
                 self.settings.horizon_label(),
             ))
             self._say("")
-            self._say("  CALL: %s   score %+.1f   data coverage %.0f%%" % (
-                verdict.rating, verdict.score, 100 * verdict.confidence,
+            self._say("  CALL: %s   score %s   data coverage %.0f%%" % (
+                verdict.rating,
+                self._cell(verdict.score if verdict.has_data() else None),
+                100 * verdict.confidence,
             ))
+            if not verdict.has_data():
+                self._say("  Brak danych: %s" % verdict.missing_reason())
             self._say("")
 
             for name in ("technical", "valuation", "supply"):
                 block = verdict.blocks.get(name)
                 if block is None:
+                    self._say("  %-10s %8s   brak danych" % (name, "n/a"))
                     continue
                 score = block.score()
                 share = verdict.weights.get(name)
@@ -226,6 +238,8 @@ class Report:
                         100 * forecast.inner_quantiles[1],
                         forecast.inner_low[-1], forecast.inner_high[-1]))
 
+            self._print_data_quality(verdict.market)
+
             self._say("")
             self._print_reasons("  Supporting a buy:", verdict.reasons(3, True))
             self._print_reasons("  Arguing against:", verdict.reasons(3, False))
@@ -250,6 +264,39 @@ class Report:
             self._say("    %+6.0f  %-30s %s" % (
                 signal.score, "%s (%s)" % (signal.label, name), signal.detail,
             ))
+
+    def _print_data_notes(self):
+        """Footnotes under the table for empty and suspect analyses."""
+        empty = [v for v in self.verdicts if not v.has_data()]
+        suspect = [v for v in self.verdicts if v.market.has_suspect_data()]
+        if not (empty or suspect):
+            return
+        self._say("")
+        for verdict in empty:
+            self._say("  NO DATA %-8s %s -- analiza pusta; sprawdź symbol w Yahoo "
+                      "Finance (np. sufiks giełdy: .DE, .KS, .HK)"
+                      % (verdict.ticker, verdict.missing_reason()))
+        if suspect:
+            self._say("  %s = możliwe błędne dane Yahoo (%s): wartość niemożliwa "
+                      "lub nieprzeliczalna została pominięta w ocenie, "
+                      "szczegóły w karcie tickera."
+                      % (self.SUSPECT_MARK,
+                         ", ".join(v.ticker for v in suspect)))
+
+    def _print_data_quality(self, market):
+        """What was wrong in Yahoo's figures: repaired, and dropped."""
+        if market.data_fixes:
+            self._say("")
+            self._say("  Dane poprawione (Yahoo miesza waluty / liczy EV z błędnej "
+                      "liczby akcji):")
+            for text in market.data_fixes:
+                self._say("    - %s" % text)
+        if market.data_warnings:
+            self._say("")
+            self._say("  %s Możliwe błędne dane -- pominięte w ocenie:"
+                      % self.SUSPECT_MARK)
+            for text in market.data_warnings:
+                self._say("    - %s" % text)
 
     def _print_skipped(self):
         for ticker, reason in self.skipped:
@@ -332,7 +379,7 @@ class Report:
             "backtest_ic", "backtest_strategy_pct", "backtest_buy_hold_pct",
             "forecast_steps", "forecast_median", "forecast_low",
             "forecast_high", "forecast_inner_low", "forecast_inner_high",
-            "forecast_change_pct",
+            "forecast_change_pct", "data_warnings", "data_fixes",
         ])
         for verdict in self.verdicts:
             low, high = verdict.market.year_range()
@@ -344,7 +391,7 @@ class Report:
                 verdict.ticker,
                 verdict.market.name(),
                 verdict.rating,
-                round(verdict.score, 1),
+                round(verdict.score, 1) if verdict.has_data() else None,
                 round(verdict.confidence, 2),
                 self._cell(verdict.block_score("technical")),
                 self._cell(verdict.block_score("valuation")),
@@ -365,6 +412,8 @@ class Report:
                 ahead.get("inner_low_end"),
                 ahead.get("inner_high_end"),
                 ahead.get("change_pct"),
+                " | ".join(verdict.market.data_warnings),
+                " | ".join(verdict.market.data_fixes),
             ])
         return buffer.getvalue()
 

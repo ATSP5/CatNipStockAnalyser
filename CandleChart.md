@@ -12,7 +12,7 @@ Inside CatNip the run engine replaces `plt.show()` with its own capture, which p
 
 `draw(verdict, settings, forecast=None, note=None)` — z `forecast` (PriceForecast) rysuje też prognozę AI; `note` to powód jej braku, pokazywany na wykresie.
 
-Renders a verdict and saves it. Returns the file path, or `None` when there were too few candles to draw. The class method is the intended entry point.
+Renders a verdict and saves it and returns the file path. The class method is the intended entry point. A verdict with fewer than 2 candles (NO DATA) gets an empty chart from `_render_empty`, so its analysis is still visible.
 
 ## render
 
@@ -51,6 +51,14 @@ Pionowa kreskowana linia między ostatnią prawdziwą świecą a pierwszą progn
 ## Oś czasu z prognozą
 
 Etykiety osi obejmują też przyszłe świece — ich daty pochodzą z `forecast.timestamps` (dni sesyjne dla `1d`, co 7 dni dla `1wk`/`5d`, pierwsze dni miesięcy dla `1mo`; dla interwałów śróddziennych odstępy są równe i pomijają godziny sesji, więc daty są przybliżone).
+
+## SUSPECT_TEXT
+
+Napis `! Możliwe błędne dane`, rysowany na czerwono pod rekomendacją w prawym górnym rogu (`_suspect_mark`), gdy `MarketData.has_suspect_data()`, czyli gdy jakąś wartość Yahoo trzeba było pominąć jako niemożliwą (np. free float ASML 5520%). Szczegóły są w karcie tickera w terminalu. Wartości, które udało się poprawić (np. P/B po przeliczeniu waluty), nie dają tego napisu.
+
+## _render_empty
+
+Wykres dla tickera bez danych: tytuł `<TICKER> -- <interwał> candles | score n/a`, etykieta NO DATA i na środku „Brak danych” z powodem (`Recommendation.missing_reason()`). Zapisywany pod tą samą nazwą `<TICKER>_<interwał>.png` i pokazywany w zakładce Output jak każdy inny.
 
 ## FORECAST
 

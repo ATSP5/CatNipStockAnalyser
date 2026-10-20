@@ -9,6 +9,10 @@ to live here too, but they restated the technical trend and the range position
 with the opposite sign, so they were removed. A few quality measures --
 margin, return on equity, leverage -- sit alongside them, because a low
 multiple on a deteriorating business is a trap rather than a bargain.
+
+P/B, P/S, EV/EBITDA and the free cash flow yield come from MarketData's
+checked readers, which convert foreign statements to the quote currency and
+withhold impossible values -- a withheld ratio is simply not scored.
 """
 
 from Indicators import Indicators
@@ -127,20 +131,18 @@ class ValuationAnalysis:
         return ""
 
     def _asset_and_sales_multiples(self):
-        price_to_book = self.market.field("priceToBook")
+        price_to_book = self.market.price_to_book()
         if price_to_book is not None and price_to_book > 0:
             self._add("pb", "Price / book", Score.ramp(price_to_book, 8.0, 1.0),
                       "%.2fx book value" % price_to_book, price_to_book)
 
-        price_to_sales = self.market.field(
-            "priceToSalesTrailing12Months", "priceToSales"
-        )
+        price_to_sales = self.market.price_to_sales()
         if price_to_sales is not None and price_to_sales > 0:
             self._add("ps", "Price / sales",
                       Score.ramp(price_to_sales, 12.0, 1.0),
                       "%.2fx revenue" % price_to_sales, price_to_sales)
 
-        ev_ebitda = self.market.field("enterpriseToEbitda")
+        ev_ebitda = self.market.enterprise_to_ebitda()
         if ev_ebitda is not None:
             if ev_ebitda <= 0:
                 self.block.note("EV/EBITDA is negative -- EBITDA does not cover")
@@ -152,10 +154,8 @@ class ValuationAnalysis:
 
     def _cash_returns(self):
         """What the business hands back, measured against the risk-free rate."""
-        free_cash_flow = self.market.field("freeCashflow")
-        market_cap = self.market.market_cap()
-        if free_cash_flow and market_cap and market_cap > 0:
-            yield_pct = 100.0 * free_cash_flow / market_cap
+        yield_pct = self.market.free_cash_flow_yield()
+        if yield_pct is not None:
             hurdle = 100.0 * self.settings.risk_free_rate
             self._add(
                 "fcf_yield",

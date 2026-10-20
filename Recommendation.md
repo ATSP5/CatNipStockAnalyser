@@ -12,6 +12,8 @@ The blocks are weighted by horizon (see `Settings.HORIZON_WEIGHTS`; at `1d` it i
 
 A block that produced nothing is dropped and the remaining weights are renormalised, so a ticker with no published fundamentals still gets a verdict rather than a crash — with a confidence figure that says how much of the intended evidence was really there.
 
+Ticker bez używalnych świec (mniej niż 20, np. błędny symbol `FB2A`, `SMSN`) nie jest ukrywany. Dostaje pusty werdykt **NO DATA**: żaden blok nie jest liczony, `blocks` jest puste, score się nie liczy (w raporcie i JSON `n/a` / `null`), a pokrycie danych wynosi 0%. Powód podaje `missing_reason()`. Dzięki temu taki ticker widać w tabeli, w karcie, na pustym wykresie i w plikach.
+
 Expect the blocks to disagree. A stock at the top of its 52-week range on a strong uptrend scores well technically and badly on valuation, and the HOLD that comes out of it is the honest answer rather than a failure to decide. The interesting cases are the ones where all three agree.
 
 ## frame
@@ -24,7 +26,7 @@ The composite, from `-100` to `+100`.
 
 ## rating
 
-The label the composite falls into. `"NO DATA"` when no block produced anything at all.
+The label the composite falls into. `"NO DATA"` when no block produced anything at all — in particular for a ticker without candles.
 
 ## confidence
 
@@ -58,8 +60,16 @@ Every caveat the three blocks raised, prefixed with where it came from, plus any
 
 ## to_dict
 
-The whole verdict as plain data, including every individual signal, for the JSON output.
+The whole verdict as plain data, including every individual signal, for the JSON output. `score` is `null` for NO DATA.
 
 ## for_market
 
-Builds a verdict, or returns `None` when the ticker could not be fetched well enough to judge.
+Builds a verdict. For a ticker that could not be fetched it is the empty NO DATA verdict, never `None`.
+
+## has_data
+
+`False` dla pustego werdyktu NO DATA. Report używa tego, żeby wypisać `n/a` zamiast score, pominąć backtest, umieścić ticker na końcu tabeli i narysować pusty wykres.
+
+## missing_reason
+
+Dlaczego analiza jest pusta (pierwszy błąd z `MarketData.problem()`, np. `no candles returned for FB2A at 1d over 2y`) albo `""`, gdy dane są.

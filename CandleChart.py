@@ -8,6 +8,10 @@ and overnight gaps do not open blank stretches in the middle of the chart.
 With a PriceForecast the price panel continues past the last candle: the AI
 model's median close and its 10-90% band, separated from the real candles by
 a vertical dashed line drawn through every panel.
+
+A ticker whose fundamentals held an impossible value gets a red
+"! Możliwe błędne dane" under its rating. A ticker with no candles still gets a
+chart: an empty frame that says why, so the analysis is never silently missing.
 """
 
 import os
@@ -28,6 +32,7 @@ class CandleChart:
     INK = "#2b2b2b"
     MUTED = "#8a8a8a"
     FORECAST = "#7b1fa2"
+    SUSPECT_TEXT = "! Możliwe błędne dane"
 
     RATING_COLOUR = {
         "STRONG BUY": "#1b7f3b",
@@ -61,7 +66,7 @@ class CandleChart:
     def render(self):
         frame = self.verdict.frame
         if frame is None or len(frame) < 2:
-            return None
+            return self._render_empty()
 
         window = frame.tail(max(20, self.settings.chart_candles))
         positions = range(len(window))
@@ -93,7 +98,33 @@ class CandleChart:
         figure.text(0.94, 0.955, self.verdict.rating, ha="right", fontsize=14,
                     fontweight="bold",
                     color=self.RATING_COLOUR.get(self.verdict.rating, self.INK))
+        self._suspect_mark(figure)
 
+        return self._save(figure)
+
+    def _render_empty(self):
+        """A blank chart for a ticker without candles, stating the reason."""
+        figure, axis = plt.subplots(figsize=(13, 4))
+        axis.set_axis_off()
+        axis.text(0.5, 0.5, "Brak danych\n%s" % self.verdict.missing_reason(),
+                  ha="center", va="center", fontsize=12, color=self.MUTED, wrap=True,
+                  transform=axis.transAxes)
+        figure.suptitle("%s  --  %s candles  |  score n/a" % (
+            self.market.ticker, self.settings.horizon_label()), fontsize=13,
+            fontweight="bold", color=self.INK, x=0.07, ha="left")
+        figure.text(0.94, 0.92, self.verdict.rating, ha="right", fontsize=14,
+                    fontweight="bold",
+                    color=self.RATING_COLOUR.get(self.verdict.rating, self.INK))
+        self._suspect_mark(figure)
+        return self._save(figure)
+
+    def _suspect_mark(self, figure):
+        """Red warning under the rating when Yahoo data had to be dropped."""
+        if self.market.has_suspect_data():
+            figure.text(0.94, 0.925, self.SUSPECT_TEXT, ha="right", va="top",
+                        fontsize=10, fontweight="bold", color=self.DOWN)
+
+    def _save(self, figure):
         self.path = self._destination()
         figure.savefig(self.path, dpi=110, facecolor="white")
 
