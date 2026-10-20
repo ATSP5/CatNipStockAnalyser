@@ -9,7 +9,7 @@
         "documentationText": "",
         "documentationFile": "Settings.md",
         "nodeCathegory": 3,
-        "id": 14,
+        "id": 56,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -24,13 +24,13 @@
           },
           "inputConnectionSettings": [],
           "selectedOutputConnectionSettings": {
-            "id": 32,
+            "id": 125,
             "title": "Settings",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 32,
+              "id": 125,
               "title": "Settings",
               "connecttionType": 0
             }
@@ -73,7 +73,7 @@
         "documentationText": "",
         "documentationFile": "Score.md",
         "nodeCathegory": 3,
-        "id": 15,
+        "id": 57,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -88,13 +88,13 @@
           },
           "inputConnectionSettings": [],
           "selectedOutputConnectionSettings": {
-            "id": 33,
+            "id": 126,
             "title": "Score",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 33,
+              "id": 126,
               "title": "Score",
               "connecttionType": 0
             }
@@ -137,7 +137,7 @@
         "documentationText": "",
         "documentationFile": "Indicators.md",
         "nodeCathegory": 3,
-        "id": 16,
+        "id": 58,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -152,13 +152,13 @@
           },
           "inputConnectionSettings": [],
           "selectedOutputConnectionSettings": {
-            "id": 34,
+            "id": 127,
             "title": "Indicators",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 34,
+              "id": 127,
               "title": "Indicators",
               "connecttionType": 0
             }
@@ -201,7 +201,7 @@
         "documentationText": "",
         "documentationFile": "MarketData.md",
         "nodeCathegory": 3,
-        "id": 17,
+        "id": 59,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -216,13 +216,13 @@
           },
           "inputConnectionSettings": [],
           "selectedOutputConnectionSettings": {
-            "id": 35,
+            "id": 128,
             "title": "MarketData",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 35,
+              "id": 128,
               "title": "MarketData",
               "connecttionType": 0
             }
@@ -265,7 +265,7 @@
         "documentationText": "",
         "documentationFile": "TechnicalAnalysis.md",
         "nodeCathegory": 3,
-        "id": 18,
+        "id": 60,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -274,30 +274,30 @@
           "inputParametersEditorEnabled": true,
           "outputParametersEditorEnabled": true,
           "selectedInputConnectionSettings": {
-            "id": 36,
+            "id": 129,
             "title": "Score",
             "connecttionType": 0
           },
           "inputConnectionSettings": [
             {
-              "id": 36,
+              "id": 129,
               "title": "Score",
               "connecttionType": 0
             },
             {
-              "id": 37,
+              "id": 130,
               "title": "Indicators",
               "connecttionType": 0
             }
           ],
           "selectedOutputConnectionSettings": {
-            "id": 38,
+            "id": 131,
             "title": "TechnicalAnalysis",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 38,
+              "id": 131,
               "title": "TechnicalAnalysis",
               "connecttionType": 0
             }
@@ -340,7 +340,7 @@
         "documentationText": "",
         "documentationFile": "ValuationAnalysis.md",
         "nodeCathegory": 3,
-        "id": 19,
+        "id": 61,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -349,30 +349,30 @@
           "inputParametersEditorEnabled": true,
           "outputParametersEditorEnabled": true,
           "selectedInputConnectionSettings": {
-            "id": 39,
+            "id": 132,
             "title": "Score",
             "connecttionType": 0
           },
           "inputConnectionSettings": [
             {
-              "id": 39,
+              "id": 132,
               "title": "Score",
               "connecttionType": 0
             },
             {
-              "id": 40,
+              "id": 133,
               "title": "Indicators",
               "connecttionType": 0
             }
           ],
           "selectedOutputConnectionSettings": {
-            "id": 41,
+            "id": 134,
             "title": "ValuationAnalysis",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 41,
+              "id": 134,
               "title": "ValuationAnalysis",
               "connecttionType": 0
             }
@@ -415,7 +415,7 @@
         "documentationText": "",
         "documentationFile": "SupplyAnalysis.md",
         "nodeCathegory": 3,
-        "id": 20,
+        "id": 62,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -424,25 +424,25 @@
           "inputParametersEditorEnabled": true,
           "outputParametersEditorEnabled": true,
           "selectedInputConnectionSettings": {
-            "id": 42,
+            "id": 135,
             "title": "Score",
             "connecttionType": 0
           },
           "inputConnectionSettings": [
             {
-              "id": 42,
+              "id": 135,
               "title": "Score",
               "connecttionType": 0
             }
           ],
           "selectedOutputConnectionSettings": {
-            "id": 43,
+            "id": 136,
             "title": "SupplyAnalysis",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 43,
+              "id": 136,
               "title": "SupplyAnalysis",
               "connecttionType": 0
             }
@@ -485,7 +485,7 @@
         "documentationText": "",
         "documentationFile": "Recommendation.md",
         "nodeCathegory": 3,
-        "id": 21,
+        "id": 63,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -494,45 +494,45 @@
           "inputParametersEditorEnabled": true,
           "outputParametersEditorEnabled": true,
           "selectedInputConnectionSettings": {
-            "id": 44,
+            "id": 137,
             "title": "Score",
             "connecttionType": 0
           },
           "inputConnectionSettings": [
             {
-              "id": 44,
+              "id": 137,
               "title": "Score",
               "connecttionType": 0
             },
             {
-              "id": 45,
+              "id": 138,
               "title": "Indicators",
               "connecttionType": 0
             },
             {
-              "id": 46,
+              "id": 139,
               "title": "TechnicalAnalysis",
               "connecttionType": 0
             },
             {
-              "id": 47,
+              "id": 140,
               "title": "ValuationAnalysis",
               "connecttionType": 0
             },
             {
-              "id": 48,
+              "id": 141,
               "title": "SupplyAnalysis",
               "connecttionType": 0
             }
           ],
           "selectedOutputConnectionSettings": {
-            "id": 49,
+            "id": 142,
             "title": "Recommendation",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 49,
+              "id": 142,
               "title": "Recommendation",
               "connecttionType": 0
             }
@@ -575,7 +575,7 @@
         "documentationText": "",
         "documentationFile": "CandleChart.md",
         "nodeCathegory": 3,
-        "id": 22,
+        "id": 64,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -590,13 +590,13 @@
           },
           "inputConnectionSettings": [],
           "selectedOutputConnectionSettings": {
-            "id": 50,
+            "id": 143,
             "title": "CandleChart",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 50,
+              "id": 143,
               "title": "CandleChart",
               "connecttionType": 0
             }
@@ -639,7 +639,7 @@
         "documentationText": "",
         "documentationFile": "Report.md",
         "nodeCathegory": 3,
-        "id": 23,
+        "id": 65,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -648,50 +648,50 @@
           "inputParametersEditorEnabled": true,
           "outputParametersEditorEnabled": true,
           "selectedInputConnectionSettings": {
-            "id": 51,
+            "id": 144,
             "title": "Settings",
             "connecttionType": 0
           },
           "inputConnectionSettings": [
             {
-              "id": 51,
+              "id": 144,
               "title": "Settings",
               "connecttionType": 0
             },
             {
-              "id": 52,
+              "id": 145,
               "title": "Score",
               "connecttionType": 0
             },
             {
-              "id": 53,
+              "id": 146,
               "title": "MarketData",
               "connecttionType": 0
             },
             {
-              "id": 54,
+              "id": 147,
               "title": "Recommendation",
               "connecttionType": 0
             },
             {
-              "id": 55,
+              "id": 148,
               "title": "CandleChart",
               "connecttionType": 0
             },
             {
-              "id": 56,
+              "id": 149,
               "title": "Forecaster",
               "connecttionType": 0
             }
           ],
           "selectedOutputConnectionSettings": {
-            "id": 57,
+            "id": 150,
             "title": "Report",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 57,
+              "id": 150,
               "title": "Report",
               "connecttionType": 0
             }
@@ -734,7 +734,7 @@
         "documentationText": "",
         "documentationFile": "Backtest.md",
         "nodeCathegory": 3,
-        "id": 24,
+        "id": 66,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -743,30 +743,30 @@
           "inputParametersEditorEnabled": true,
           "outputParametersEditorEnabled": true,
           "selectedInputConnectionSettings": {
-            "id": 58,
+            "id": 151,
             "title": "Score",
             "connecttionType": 0
           },
           "inputConnectionSettings": [
             {
-              "id": 58,
+              "id": 151,
               "title": "Score",
               "connecttionType": 0
             },
             {
-              "id": 59,
+              "id": 152,
               "title": "TechnicalAnalysis",
               "connecttionType": 0
             }
           ],
           "selectedOutputConnectionSettings": {
-            "id": 60,
+            "id": 153,
             "title": "Backtest",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 60,
+              "id": 153,
               "title": "Backtest",
               "connecttionType": 0
             }
@@ -809,7 +809,7 @@
         "documentationText": "",
         "documentationFile": "PriceForecast.md",
         "nodeCathegory": 3,
-        "id": 25,
+        "id": 67,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -867,7 +867,7 @@
         "documentationText": "",
         "documentationFile": "PriceForecaster.md",
         "nodeCathegory": 3,
-        "id": 26,
+        "id": 68,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -876,25 +876,25 @@
           "inputParametersEditorEnabled": true,
           "outputParametersEditorEnabled": true,
           "selectedInputConnectionSettings": {
-            "id": 61,
+            "id": 154,
             "title": "settings",
             "connecttionType": 0
           },
           "inputConnectionSettings": [
             {
-              "id": 61,
+              "id": 154,
               "title": "settings",
               "connecttionType": 0
             }
           ],
           "selectedOutputConnectionSettings": {
-            "id": 62,
+            "id": 155,
             "title": "forecaster",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 62,
+              "id": 155,
               "title": "forecaster",
               "connecttionType": 0
             }
@@ -937,7 +937,7 @@
         "documentationText": "",
         "documentationFile": "README.md",
         "nodeCathegory": 30,
-        "id": 27,
+        "id": 69,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -989,135 +989,135 @@
   ],
   "connections": [
     {
-      "sourceNodeId": 15,
+      "sourceNodeId": 57,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 18,
+      "targetNodeId": 60,
       "targetConnectorIndex": 0,
       "isChosen": false
     },
     {
-      "sourceNodeId": 16,
+      "sourceNodeId": 58,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 18,
+      "targetNodeId": 60,
       "targetConnectorIndex": 1,
       "isChosen": false
     },
     {
-      "sourceNodeId": 15,
+      "sourceNodeId": 57,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 19,
+      "targetNodeId": 61,
       "targetConnectorIndex": 0,
       "isChosen": false
     },
     {
-      "sourceNodeId": 16,
+      "sourceNodeId": 58,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 19,
+      "targetNodeId": 61,
       "targetConnectorIndex": 1,
       "isChosen": false
     },
     {
-      "sourceNodeId": 15,
+      "sourceNodeId": 57,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 20,
+      "targetNodeId": 62,
       "targetConnectorIndex": 0,
       "isChosen": false
     },
     {
-      "sourceNodeId": 15,
+      "sourceNodeId": 57,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 21,
+      "targetNodeId": 63,
       "targetConnectorIndex": 0,
       "isChosen": false
     },
     {
-      "sourceNodeId": 16,
+      "sourceNodeId": 58,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 21,
+      "targetNodeId": 63,
       "targetConnectorIndex": 1,
       "isChosen": false
     },
     {
-      "sourceNodeId": 18,
+      "sourceNodeId": 60,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 21,
+      "targetNodeId": 63,
       "targetConnectorIndex": 2,
       "isChosen": false
     },
     {
-      "sourceNodeId": 19,
+      "sourceNodeId": 61,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 21,
+      "targetNodeId": 63,
       "targetConnectorIndex": 3,
       "isChosen": false
     },
     {
-      "sourceNodeId": 20,
+      "sourceNodeId": 62,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 21,
+      "targetNodeId": 63,
       "targetConnectorIndex": 4,
       "isChosen": false
     },
     {
-      "sourceNodeId": 14,
+      "sourceNodeId": 56,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 23,
+      "targetNodeId": 65,
       "targetConnectorIndex": 0,
       "isChosen": false
     },
     {
-      "sourceNodeId": 17,
+      "sourceNodeId": 59,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 23,
+      "targetNodeId": 65,
       "targetConnectorIndex": 2,
       "isChosen": false
     },
     {
-      "sourceNodeId": 21,
+      "sourceNodeId": 63,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 23,
+      "targetNodeId": 65,
       "targetConnectorIndex": 3,
       "isChosen": false
     },
     {
-      "sourceNodeId": 22,
+      "sourceNodeId": 64,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 23,
+      "targetNodeId": 65,
       "targetConnectorIndex": 4,
       "isChosen": false
     },
     {
-      "sourceNodeId": 15,
+      "sourceNodeId": 57,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 24,
+      "targetNodeId": 66,
       "targetConnectorIndex": 0,
       "isChosen": false
     },
     {
-      "sourceNodeId": 18,
+      "sourceNodeId": 60,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 24,
+      "targetNodeId": 66,
       "targetConnectorIndex": 1,
       "isChosen": false
     },
     {
-      "sourceNodeId": 24,
+      "sourceNodeId": 66,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 23,
+      "targetNodeId": 65,
       "targetConnectorIndex": 1,
       "isChosen": false
     },
     {
-      "sourceNodeId": 14,
+      "sourceNodeId": 56,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 26,
+      "targetNodeId": 68,
       "targetConnectorIndex": 0,
       "isChosen": false
     },
     {
-      "sourceNodeId": 26,
+      "sourceNodeId": 68,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 23,
+      "targetNodeId": 65,
       "targetConnectorIndex": 5,
       "isChosen": false
     }
