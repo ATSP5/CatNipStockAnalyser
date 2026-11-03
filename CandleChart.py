@@ -22,6 +22,7 @@ matplotlib.use("Agg")               # write files; never try to open a window
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+from matplotlib.ticker import AutoMinorLocator
 
 
 class CandleChart:
@@ -32,6 +33,13 @@ class CandleChart:
     INK = "#2b2b2b"
     MUTED = "#8a8a8a"
     FORECAST = "#7b1fa2"
+
+    # Grid: solid major lines at every labelled tick, dotted minor lines
+    # between them, so a price or a date can be read straight off the chart.
+    GRID_COLOUR = "#9e9e9e"
+    GRID_MAJOR = {"alpha": 0.55, "linewidth": 0.8, "linestyle": "-"}
+    GRID_MINOR = {"alpha": 0.30, "linewidth": 0.5, "linestyle": ":"}
+    GRID_MINOR_DIVISIONS = 4     # minor cells per major cell, both axes
     SUSPECT_TEXT = "! Możliwe błędne dane"
 
     RATING_COLOUR = {
@@ -88,8 +96,7 @@ class CandleChart:
         self._today_line(axes, window)
 
         for axis in axes:
-            axis.grid(True, alpha=0.15, linewidth=0.6)
-            axis.set_axisbelow(True)
+            self._grid(axis)
             for side in ("top", "right"):
                 axis.spines[side].set_visible(False)
 
@@ -101,6 +108,15 @@ class CandleChart:
         self._suspect_mark(figure)
 
         return self._save(figure)
+
+    def _grid(self, axis):
+        """Major grid at the labelled ticks plus a finer dotted minor grid."""
+        axis.xaxis.set_minor_locator(AutoMinorLocator(self.GRID_MINOR_DIVISIONS))
+        axis.yaxis.set_minor_locator(AutoMinorLocator(self.GRID_MINOR_DIVISIONS))
+        axis.grid(True, which="major", color=self.GRID_COLOUR, **self.GRID_MAJOR)
+        axis.grid(True, which="minor", color=self.GRID_COLOUR, **self.GRID_MINOR)
+        axis.tick_params(which="minor", length=2, color=self.GRID_COLOUR)
+        axis.set_axisbelow(True)
 
     def _render_empty(self):
         """A blank chart for a ticker without candles, stating the reason."""

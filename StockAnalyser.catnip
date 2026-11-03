@@ -4,12 +4,12 @@
       "nodeData": {
         "codeText": "",
         "codeFile": "block_code/Settings.py",
-        "maxInputNumber": 0,
-        "maxOutputNumber": 1,
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
         "documentationText": "",
         "documentationFile": "Settings.md",
         "nodeCathegory": 3,
-        "id": 56,
+        "id": 216,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -24,13 +24,13 @@
           },
           "inputConnectionSettings": [],
           "selectedOutputConnectionSettings": {
-            "id": 125,
+            "id": 468,
             "title": "Settings",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 125,
+              "id": 468,
               "title": "Settings",
               "connecttionType": 0
             }
@@ -52,6 +52,7 @@
           "reportDefinition": "",
           "dataSchema": "",
           "interactiveReport": "",
+          "serverResults": "",
           "nativeBuildTarget": "",
           "runCompiled": false,
           "sourceFolder": "",
@@ -68,12 +69,12 @@
       "nodeData": {
         "codeText": "",
         "codeFile": "block_code/Score.py",
-        "maxInputNumber": 0,
-        "maxOutputNumber": 1,
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
         "documentationText": "",
         "documentationFile": "Score.md",
         "nodeCathegory": 3,
-        "id": 57,
+        "id": 217,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -88,13 +89,13 @@
           },
           "inputConnectionSettings": [],
           "selectedOutputConnectionSettings": {
-            "id": 126,
+            "id": 469,
             "title": "Score",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 126,
+              "id": 469,
               "title": "Score",
               "connecttionType": 0
             }
@@ -116,6 +117,7 @@
           "reportDefinition": "",
           "dataSchema": "",
           "interactiveReport": "",
+          "serverResults": "",
           "nativeBuildTarget": "",
           "runCompiled": false,
           "sourceFolder": "",
@@ -132,12 +134,12 @@
       "nodeData": {
         "codeText": "",
         "codeFile": "block_code/Indicators.py",
-        "maxInputNumber": 0,
-        "maxOutputNumber": 1,
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
         "documentationText": "",
         "documentationFile": "Indicators.md",
         "nodeCathegory": 3,
-        "id": 58,
+        "id": 218,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -152,13 +154,13 @@
           },
           "inputConnectionSettings": [],
           "selectedOutputConnectionSettings": {
-            "id": 127,
+            "id": 470,
             "title": "Indicators",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 127,
+              "id": 470,
               "title": "Indicators",
               "connecttionType": 0
             }
@@ -180,6 +182,7 @@
           "reportDefinition": "",
           "dataSchema": "",
           "interactiveReport": "",
+          "serverResults": "",
           "nativeBuildTarget": "",
           "runCompiled": false,
           "sourceFolder": "",
@@ -196,12 +199,12 @@
       "nodeData": {
         "codeText": "",
         "codeFile": "block_code/MarketData.py",
-        "maxInputNumber": 0,
-        "maxOutputNumber": 1,
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
         "documentationText": "",
         "documentationFile": "MarketData.md",
         "nodeCathegory": 3,
-        "id": 59,
+        "id": 219,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -216,13 +219,13 @@
           },
           "inputConnectionSettings": [],
           "selectedOutputConnectionSettings": {
-            "id": 128,
+            "id": 471,
             "title": "MarketData",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 128,
+              "id": 471,
               "title": "MarketData",
               "connecttionType": 0
             }
@@ -244,6 +247,7 @@
           "reportDefinition": "",
           "dataSchema": "",
           "interactiveReport": "",
+          "serverResults": "",
           "nativeBuildTarget": "",
           "runCompiled": false,
           "sourceFolder": "",
@@ -260,12 +264,12 @@
       "nodeData": {
         "codeText": "",
         "codeFile": "block_code/TechnicalAnalysis.py",
-        "maxInputNumber": 2,
-        "maxOutputNumber": 1,
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
         "documentationText": "",
         "documentationFile": "TechnicalAnalysis.md",
         "nodeCathegory": 3,
-        "id": 60,
+        "id": 220,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -274,30 +278,30 @@
           "inputParametersEditorEnabled": true,
           "outputParametersEditorEnabled": true,
           "selectedInputConnectionSettings": {
-            "id": 129,
+            "id": 472,
             "title": "Score",
             "connecttionType": 0
           },
           "inputConnectionSettings": [
             {
-              "id": 129,
+              "id": 472,
               "title": "Score",
               "connecttionType": 0
             },
             {
-              "id": 130,
+              "id": 473,
               "title": "Indicators",
               "connecttionType": 0
             }
           ],
           "selectedOutputConnectionSettings": {
-            "id": 131,
+            "id": 474,
             "title": "TechnicalAnalysis",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 131,
+              "id": 474,
               "title": "TechnicalAnalysis",
               "connecttionType": 0
             }
@@ -319,6 +323,7 @@
           "reportDefinition": "",
           "dataSchema": "",
           "interactiveReport": "",
+          "serverResults": "",
           "nativeBuildTarget": "",
           "runCompiled": false,
           "sourceFolder": "",
@@ -335,12 +340,12 @@
       "nodeData": {
         "codeText": "",
         "codeFile": "block_code/ValuationAnalysis.py",
-        "maxInputNumber": 2,
-        "maxOutputNumber": 1,
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
         "documentationText": "",
         "documentationFile": "ValuationAnalysis.md",
         "nodeCathegory": 3,
-        "id": 61,
+        "id": 221,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -349,30 +354,30 @@
           "inputParametersEditorEnabled": true,
           "outputParametersEditorEnabled": true,
           "selectedInputConnectionSettings": {
-            "id": 132,
+            "id": 475,
             "title": "Score",
             "connecttionType": 0
           },
           "inputConnectionSettings": [
             {
-              "id": 132,
+              "id": 475,
               "title": "Score",
               "connecttionType": 0
             },
             {
-              "id": 133,
+              "id": 476,
               "title": "Indicators",
               "connecttionType": 0
             }
           ],
           "selectedOutputConnectionSettings": {
-            "id": 134,
+            "id": 477,
             "title": "ValuationAnalysis",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 134,
+              "id": 477,
               "title": "ValuationAnalysis",
               "connecttionType": 0
             }
@@ -394,6 +399,7 @@
           "reportDefinition": "",
           "dataSchema": "",
           "interactiveReport": "",
+          "serverResults": "",
           "nativeBuildTarget": "",
           "runCompiled": false,
           "sourceFolder": "",
@@ -410,12 +416,12 @@
       "nodeData": {
         "codeText": "",
         "codeFile": "block_code/SupplyAnalysis.py",
-        "maxInputNumber": 1,
-        "maxOutputNumber": 1,
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
         "documentationText": "",
         "documentationFile": "SupplyAnalysis.md",
         "nodeCathegory": 3,
-        "id": 62,
+        "id": 222,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -424,25 +430,25 @@
           "inputParametersEditorEnabled": true,
           "outputParametersEditorEnabled": true,
           "selectedInputConnectionSettings": {
-            "id": 135,
+            "id": 478,
             "title": "Score",
             "connecttionType": 0
           },
           "inputConnectionSettings": [
             {
-              "id": 135,
+              "id": 478,
               "title": "Score",
               "connecttionType": 0
             }
           ],
           "selectedOutputConnectionSettings": {
-            "id": 136,
+            "id": 479,
             "title": "SupplyAnalysis",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 136,
+              "id": 479,
               "title": "SupplyAnalysis",
               "connecttionType": 0
             }
@@ -464,6 +470,7 @@
           "reportDefinition": "",
           "dataSchema": "",
           "interactiveReport": "",
+          "serverResults": "",
           "nativeBuildTarget": "",
           "runCompiled": false,
           "sourceFolder": "",
@@ -480,12 +487,12 @@
       "nodeData": {
         "codeText": "",
         "codeFile": "block_code/Recommendation.py",
-        "maxInputNumber": 5,
-        "maxOutputNumber": 1,
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
         "documentationText": "",
         "documentationFile": "Recommendation.md",
         "nodeCathegory": 3,
-        "id": 63,
+        "id": 223,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -494,45 +501,45 @@
           "inputParametersEditorEnabled": true,
           "outputParametersEditorEnabled": true,
           "selectedInputConnectionSettings": {
-            "id": 137,
+            "id": 480,
             "title": "Score",
             "connecttionType": 0
           },
           "inputConnectionSettings": [
             {
-              "id": 137,
+              "id": 480,
               "title": "Score",
               "connecttionType": 0
             },
             {
-              "id": 138,
+              "id": 481,
               "title": "Indicators",
               "connecttionType": 0
             },
             {
-              "id": 139,
+              "id": 482,
               "title": "TechnicalAnalysis",
               "connecttionType": 0
             },
             {
-              "id": 140,
+              "id": 483,
               "title": "ValuationAnalysis",
               "connecttionType": 0
             },
             {
-              "id": 141,
+              "id": 484,
               "title": "SupplyAnalysis",
               "connecttionType": 0
             }
           ],
           "selectedOutputConnectionSettings": {
-            "id": 142,
+            "id": 485,
             "title": "Recommendation",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 142,
+              "id": 485,
               "title": "Recommendation",
               "connecttionType": 0
             }
@@ -554,6 +561,7 @@
           "reportDefinition": "",
           "dataSchema": "",
           "interactiveReport": "",
+          "serverResults": "",
           "nativeBuildTarget": "",
           "runCompiled": false,
           "sourceFolder": "",
@@ -570,12 +578,12 @@
       "nodeData": {
         "codeText": "",
         "codeFile": "block_code/CandleChart.py",
-        "maxInputNumber": 0,
-        "maxOutputNumber": 1,
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
         "documentationText": "",
         "documentationFile": "CandleChart.md",
         "nodeCathegory": 3,
-        "id": 64,
+        "id": 224,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -590,13 +598,13 @@
           },
           "inputConnectionSettings": [],
           "selectedOutputConnectionSettings": {
-            "id": 143,
+            "id": 486,
             "title": "CandleChart",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 143,
+              "id": 486,
               "title": "CandleChart",
               "connecttionType": 0
             }
@@ -618,6 +626,7 @@
           "reportDefinition": "",
           "dataSchema": "",
           "interactiveReport": "",
+          "serverResults": "",
           "nativeBuildTarget": "",
           "runCompiled": false,
           "sourceFolder": "",
@@ -627,19 +636,19 @@
         "title": "CandleChart",
         "targetPath": ""
       },
-      "locationX": 760,
-      "locationY": 120
+      "locationX": 792,
+      "locationY": 337
     },
     {
       "nodeData": {
         "codeText": "",
         "codeFile": "block_code/Report.py",
-        "maxInputNumber": 6,
-        "maxOutputNumber": 1,
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
         "documentationText": "",
         "documentationFile": "Report.md",
         "nodeCathegory": 3,
-        "id": 65,
+        "id": 225,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -648,50 +657,50 @@
           "inputParametersEditorEnabled": true,
           "outputParametersEditorEnabled": true,
           "selectedInputConnectionSettings": {
-            "id": 144,
+            "id": 487,
             "title": "Settings",
             "connecttionType": 0
           },
           "inputConnectionSettings": [
             {
-              "id": 144,
+              "id": 487,
               "title": "Settings",
               "connecttionType": 0
             },
             {
-              "id": 145,
+              "id": 488,
               "title": "Score",
               "connecttionType": 0
             },
             {
-              "id": 146,
+              "id": 489,
               "title": "MarketData",
               "connecttionType": 0
             },
             {
-              "id": 147,
+              "id": 490,
               "title": "Recommendation",
               "connecttionType": 0
             },
             {
-              "id": 148,
+              "id": 491,
               "title": "CandleChart",
               "connecttionType": 0
             },
             {
-              "id": 149,
+              "id": 492,
               "title": "Forecaster",
               "connecttionType": 0
             }
           ],
           "selectedOutputConnectionSettings": {
-            "id": 150,
+            "id": 493,
             "title": "Report",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 150,
+              "id": 493,
               "title": "Report",
               "connecttionType": 0
             }
@@ -713,6 +722,7 @@
           "reportDefinition": "",
           "dataSchema": "",
           "interactiveReport": "",
+          "serverResults": "",
           "nativeBuildTarget": "",
           "runCompiled": false,
           "sourceFolder": "",
@@ -729,12 +739,12 @@
       "nodeData": {
         "codeText": "",
         "codeFile": "block_code/Backtest.py",
-        "maxInputNumber": 2,
-        "maxOutputNumber": 1,
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
         "documentationText": "",
         "documentationFile": "Backtest.md",
         "nodeCathegory": 3,
-        "id": 66,
+        "id": 226,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -743,30 +753,30 @@
           "inputParametersEditorEnabled": true,
           "outputParametersEditorEnabled": true,
           "selectedInputConnectionSettings": {
-            "id": 151,
+            "id": 494,
             "title": "Score",
             "connecttionType": 0
           },
           "inputConnectionSettings": [
             {
-              "id": 151,
+              "id": 494,
               "title": "Score",
               "connecttionType": 0
             },
             {
-              "id": 152,
+              "id": 495,
               "title": "TechnicalAnalysis",
               "connecttionType": 0
             }
           ],
           "selectedOutputConnectionSettings": {
-            "id": 153,
+            "id": 496,
             "title": "Backtest",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 153,
+              "id": 496,
               "title": "Backtest",
               "connecttionType": 0
             }
@@ -788,6 +798,7 @@
           "reportDefinition": "",
           "dataSchema": "",
           "interactiveReport": "",
+          "serverResults": "",
           "nativeBuildTarget": "",
           "runCompiled": false,
           "sourceFolder": "",
@@ -804,12 +815,12 @@
       "nodeData": {
         "codeText": "",
         "codeFile": "block_code/PriceForecast.py",
-        "maxInputNumber": 0,
-        "maxOutputNumber": 0,
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
         "documentationText": "",
         "documentationFile": "PriceForecast.md",
         "nodeCathegory": 3,
-        "id": 67,
+        "id": 227,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -846,6 +857,7 @@
           "reportDefinition": "",
           "dataSchema": "",
           "interactiveReport": "",
+          "serverResults": "",
           "nativeBuildTarget": "",
           "runCompiled": false,
           "sourceFolder": "",
@@ -862,12 +874,12 @@
       "nodeData": {
         "codeText": "",
         "codeFile": "block_code/PriceForecaster.py",
-        "maxInputNumber": 1,
-        "maxOutputNumber": 1,
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
         "documentationText": "",
         "documentationFile": "PriceForecaster.md",
         "nodeCathegory": 3,
-        "id": 68,
+        "id": 228,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -876,25 +888,25 @@
           "inputParametersEditorEnabled": true,
           "outputParametersEditorEnabled": true,
           "selectedInputConnectionSettings": {
-            "id": 154,
+            "id": 497,
             "title": "settings",
             "connecttionType": 0
           },
           "inputConnectionSettings": [
             {
-              "id": 154,
+              "id": 497,
               "title": "settings",
               "connecttionType": 0
             }
           ],
           "selectedOutputConnectionSettings": {
-            "id": 155,
+            "id": 498,
             "title": "forecaster",
             "connecttionType": 0
           },
           "outputConnectionSettings": [
             {
-              "id": 155,
+              "id": 498,
               "title": "forecaster",
               "connecttionType": 0
             }
@@ -916,6 +928,7 @@
           "reportDefinition": "",
           "dataSchema": "",
           "interactiveReport": "",
+          "serverResults": "",
           "nativeBuildTarget": "",
           "runCompiled": false,
           "sourceFolder": "",
@@ -937,7 +950,7 @@
         "documentationText": "",
         "documentationFile": "README.md",
         "nodeCathegory": 30,
-        "id": 69,
+        "id": 229,
         "settings": {
           "objectifable": false,
           "canBeMain": false,
@@ -974,6 +987,7 @@
           "reportDefinition": "",
           "dataSchema": "",
           "interactiveReport": "",
+          "serverResults": "",
           "nativeBuildTarget": "",
           "runCompiled": false,
           "sourceFolder": "",
@@ -985,139 +999,893 @@
       },
       "locationX": 60,
       "locationY": 747
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/ScreenerSettings.py",
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
+        "documentationText": "",
+        "documentationFile": "ScreenerSettings.md",
+        "nodeCathegory": 3,
+        "id": 230,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 1,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": true,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 499,
+            "title": "settings",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [
+            {
+              "id": 499,
+              "title": "settings",
+              "connecttionType": 0
+            }
+          ],
+          "selectedOutputConnectionSettings": {
+            "id": 500,
+            "title": "screener_settings",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 500,
+              "title": "screener_settings",
+              "connecttionType": 0
+            }
+          ],
+          "description": "ScreenerSettings",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "serverResults": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "ScreenerSettings",
+        "targetPath": ""
+      },
+      "locationX": 300,
+      "locationY": 900
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/StockCandidate.py",
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
+        "documentationText": "",
+        "documentationFile": "StockCandidate.md",
+        "nodeCathegory": 3,
+        "id": 231,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 0,
+          "outputNumber": 0,
+          "inputParametersEditorEnabled": false,
+          "outputParametersEditorEnabled": false,
+          "selectedInputConnectionSettings": {
+            "id": 0,
+            "title": "",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [],
+          "selectedOutputConnectionSettings": {
+            "id": 0,
+            "title": "",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [],
+          "description": "StockCandidate",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "serverResults": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "StockCandidate",
+        "targetPath": ""
+      },
+      "locationX": 60,
+      "locationY": 1200
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/RankedPick.py",
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
+        "documentationText": "",
+        "documentationFile": "RankedPick.md",
+        "nodeCathegory": 3,
+        "id": 232,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 0,
+          "outputNumber": 0,
+          "inputParametersEditorEnabled": false,
+          "outputParametersEditorEnabled": false,
+          "selectedInputConnectionSettings": {
+            "id": 0,
+            "title": "",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [],
+          "selectedOutputConnectionSettings": {
+            "id": 0,
+            "title": "",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [],
+          "description": "RankedPick",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "serverResults": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "RankedPick",
+        "targetPath": ""
+      },
+      "locationX": 60,
+      "locationY": 1350
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/SectorUniverse.py",
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
+        "documentationText": "",
+        "documentationFile": "SectorUniverse.md",
+        "nodeCathegory": 3,
+        "id": 233,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 1,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": true,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 501,
+            "title": "screener_settings",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [
+            {
+              "id": 501,
+              "title": "screener_settings",
+              "connecttionType": 0
+            }
+          ],
+          "selectedOutputConnectionSettings": {
+            "id": 502,
+            "title": "universe",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 502,
+              "title": "universe",
+              "connecttionType": 0
+            }
+          ],
+          "description": "SectorUniverse",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "serverResults": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "SectorUniverse",
+        "targetPath": ""
+      },
+      "locationX": 719,
+      "locationY": 847
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/UniverseFetcher.py",
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
+        "documentationText": "",
+        "documentationFile": "UniverseFetcher.md",
+        "nodeCathegory": 3,
+        "id": 234,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 2,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": true,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 503,
+            "title": "screener_settings",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [
+            {
+              "id": 503,
+              "title": "screener_settings",
+              "connecttionType": 0
+            },
+            {
+              "id": 504,
+              "title": "MarketData",
+              "connecttionType": 0
+            }
+          ],
+          "selectedOutputConnectionSettings": {
+            "id": 505,
+            "title": "universe_fetcher",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 505,
+              "title": "universe_fetcher",
+              "connecttionType": 0
+            }
+          ],
+          "description": "UniverseFetcher",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "serverResults": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "UniverseFetcher",
+        "targetPath": ""
+      },
+      "locationX": 645,
+      "locationY": 1013
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/FactorModel.py",
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
+        "documentationText": "",
+        "documentationFile": "FactorModel.md",
+        "nodeCathegory": 3,
+        "id": 235,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 3,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": true,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 506,
+            "title": "screener_settings",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [
+            {
+              "id": 506,
+              "title": "screener_settings",
+              "connecttionType": 0
+            },
+            {
+              "id": 507,
+              "title": "Recommendation",
+              "connecttionType": 0
+            },
+            {
+              "id": 508,
+              "title": "forecaster",
+              "connecttionType": 0
+            }
+          ],
+          "selectedOutputConnectionSettings": {
+            "id": 509,
+            "title": "factor_model",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 509,
+              "title": "factor_model",
+              "connecttionType": 0
+            }
+          ],
+          "description": "FactorModel",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "serverResults": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "FactorModel",
+        "targetPath": ""
+      },
+      "locationX": 580,
+      "locationY": 1156
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/ThemeRanker.py",
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
+        "documentationText": "",
+        "documentationFile": "ThemeRanker.md",
+        "nodeCathegory": 3,
+        "id": 236,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 1,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": true,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 510,
+            "title": "screener_settings",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [
+            {
+              "id": 510,
+              "title": "screener_settings",
+              "connecttionType": 0
+            }
+          ],
+          "selectedOutputConnectionSettings": {
+            "id": 511,
+            "title": "theme_ranker",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 511,
+              "title": "theme_ranker",
+              "connecttionType": 0
+            }
+          ],
+          "description": "ThemeRanker",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "serverResults": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "ThemeRanker",
+        "targetPath": ""
+      },
+      "locationX": 580,
+      "locationY": 1331
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/ScreenerChart.py",
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
+        "documentationText": "",
+        "documentationFile": "ScreenerChart.md",
+        "nodeCathegory": 3,
+        "id": 237,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 1,
+          "outputNumber": 1,
+          "inputParametersEditorEnabled": true,
+          "outputParametersEditorEnabled": true,
+          "selectedInputConnectionSettings": {
+            "id": 512,
+            "title": "screener_settings",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [
+            {
+              "id": 512,
+              "title": "screener_settings",
+              "connecttionType": 0
+            }
+          ],
+          "selectedOutputConnectionSettings": {
+            "id": 513,
+            "title": "screener_chart",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [
+            {
+              "id": 513,
+              "title": "screener_chart",
+              "connecttionType": 0
+            }
+          ],
+          "description": "ScreenerChart",
+          "isMain": false,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "serverResults": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "ScreenerChart",
+        "targetPath": ""
+      },
+      "locationX": 580,
+      "locationY": 1522
+    },
+    {
+      "nodeData": {
+        "codeText": "",
+        "codeFile": "block_code/ScreenerReport.py",
+        "maxInputNumber": 50,
+        "maxOutputNumber": 50,
+        "documentationText": "",
+        "documentationFile": "ScreenerReport.md",
+        "nodeCathegory": 3,
+        "id": 238,
+        "settings": {
+          "objectifable": false,
+          "canBeMain": false,
+          "inputNumber": 6,
+          "outputNumber": 0,
+          "inputParametersEditorEnabled": true,
+          "outputParametersEditorEnabled": false,
+          "selectedInputConnectionSettings": {
+            "id": 514,
+            "title": "screener_settings",
+            "connecttionType": 0
+          },
+          "inputConnectionSettings": [
+            {
+              "id": 514,
+              "title": "screener_settings",
+              "connecttionType": 0
+            },
+            {
+              "id": 515,
+              "title": "universe",
+              "connecttionType": 0
+            },
+            {
+              "id": 516,
+              "title": "universe_fetcher",
+              "connecttionType": 0
+            },
+            {
+              "id": 517,
+              "title": "factor_model",
+              "connecttionType": 0
+            },
+            {
+              "id": 518,
+              "title": "theme_ranker",
+              "connecttionType": 0
+            },
+            {
+              "id": 519,
+              "title": "screener_chart",
+              "connecttionType": 0
+            }
+          ],
+          "selectedOutputConnectionSettings": {
+            "id": 0,
+            "title": "",
+            "connecttionType": 0
+          },
+          "outputConnectionSettings": [],
+          "description": "ScreenerReport",
+          "isMain": true,
+          "inObjectiveManner": false,
+          "shellType": "Local Shell (system Python)",
+          "sqlScriptType": "MSSQL",
+          "connectionString": "",
+          "inputConstructorRouting": {},
+          "setterMethodNames": {},
+          "outputInputDependencies": {},
+          "disabledInputs": [],
+          "aggregatePrevious": false,
+          "badgeText": "",
+          "badgeColor": "",
+          "fileFormat": "Python",
+          "reportDefinition": "",
+          "dataSchema": "",
+          "interactiveReport": "",
+          "serverResults": "",
+          "nativeBuildTarget": "",
+          "runCompiled": false,
+          "sourceFolder": "",
+          "mappedFrom": ""
+        },
+        "nodeCategory": 3,
+        "title": "ScreenerReport",
+        "targetPath": ""
+      },
+      "locationX": 1120,
+      "locationY": 1050
     }
   ],
   "connections": [
     {
-      "sourceNodeId": 57,
+      "sourceNodeId": 217,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 60,
+      "targetNodeId": 220,
       "targetConnectorIndex": 0,
       "isChosen": false
     },
     {
-      "sourceNodeId": 58,
+      "sourceNodeId": 218,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 60,
+      "targetNodeId": 220,
       "targetConnectorIndex": 1,
       "isChosen": false
     },
     {
-      "sourceNodeId": 57,
+      "sourceNodeId": 217,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 61,
+      "targetNodeId": 221,
       "targetConnectorIndex": 0,
       "isChosen": false
     },
     {
-      "sourceNodeId": 58,
+      "sourceNodeId": 218,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 61,
+      "targetNodeId": 221,
       "targetConnectorIndex": 1,
       "isChosen": false
     },
     {
-      "sourceNodeId": 57,
+      "sourceNodeId": 217,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 62,
+      "targetNodeId": 222,
       "targetConnectorIndex": 0,
       "isChosen": false
     },
     {
-      "sourceNodeId": 57,
+      "sourceNodeId": 217,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 63,
+      "targetNodeId": 223,
       "targetConnectorIndex": 0,
       "isChosen": false
     },
     {
-      "sourceNodeId": 58,
+      "sourceNodeId": 218,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 63,
+      "targetNodeId": 223,
       "targetConnectorIndex": 1,
       "isChosen": false
     },
     {
-      "sourceNodeId": 60,
+      "sourceNodeId": 220,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 63,
+      "targetNodeId": 223,
       "targetConnectorIndex": 2,
       "isChosen": false
     },
     {
-      "sourceNodeId": 61,
+      "sourceNodeId": 221,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 63,
+      "targetNodeId": 223,
       "targetConnectorIndex": 3,
       "isChosen": false
     },
     {
-      "sourceNodeId": 62,
+      "sourceNodeId": 222,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 63,
+      "targetNodeId": 223,
       "targetConnectorIndex": 4,
       "isChosen": false
     },
     {
-      "sourceNodeId": 56,
+      "sourceNodeId": 216,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 65,
+      "targetNodeId": 225,
       "targetConnectorIndex": 0,
       "isChosen": false
     },
     {
-      "sourceNodeId": 59,
+      "sourceNodeId": 219,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 65,
+      "targetNodeId": 225,
       "targetConnectorIndex": 2,
       "isChosen": false
     },
     {
-      "sourceNodeId": 63,
+      "sourceNodeId": 223,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 65,
+      "targetNodeId": 225,
       "targetConnectorIndex": 3,
       "isChosen": false
     },
     {
-      "sourceNodeId": 64,
+      "sourceNodeId": 224,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 65,
+      "targetNodeId": 225,
       "targetConnectorIndex": 4,
       "isChosen": false
     },
     {
-      "sourceNodeId": 57,
+      "sourceNodeId": 217,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 66,
+      "targetNodeId": 226,
       "targetConnectorIndex": 0,
       "isChosen": false
     },
     {
-      "sourceNodeId": 60,
+      "sourceNodeId": 220,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 66,
+      "targetNodeId": 226,
       "targetConnectorIndex": 1,
       "isChosen": false
     },
     {
-      "sourceNodeId": 66,
+      "sourceNodeId": 226,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 65,
+      "targetNodeId": 225,
       "targetConnectorIndex": 1,
       "isChosen": false
     },
     {
-      "sourceNodeId": 56,
+      "sourceNodeId": 216,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 68,
+      "targetNodeId": 228,
       "targetConnectorIndex": 0,
       "isChosen": false
     },
     {
-      "sourceNodeId": 68,
+      "sourceNodeId": 228,
       "sourceConnectorIndex": 0,
-      "targetNodeId": 65,
+      "targetNodeId": 225,
+      "targetConnectorIndex": 5,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 216,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 230,
+      "targetConnectorIndex": 0,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 230,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 233,
+      "targetConnectorIndex": 0,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 230,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 234,
+      "targetConnectorIndex": 0,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 230,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 235,
+      "targetConnectorIndex": 0,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 230,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 236,
+      "targetConnectorIndex": 0,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 230,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 237,
+      "targetConnectorIndex": 0,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 230,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 238,
+      "targetConnectorIndex": 0,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 219,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 234,
+      "targetConnectorIndex": 1,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 223,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 235,
+      "targetConnectorIndex": 1,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 228,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 235,
+      "targetConnectorIndex": 2,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 233,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 238,
+      "targetConnectorIndex": 1,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 234,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 238,
+      "targetConnectorIndex": 2,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 235,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 238,
+      "targetConnectorIndex": 3,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 236,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 238,
+      "targetConnectorIndex": 4,
+      "isChosen": false
+    },
+    {
+      "sourceNodeId": 237,
+      "sourceConnectorIndex": 0,
+      "targetNodeId": 238,
       "targetConnectorIndex": 5,
       "isChosen": false
     }
@@ -1128,7 +1896,7 @@
   "engineSettings": [
     {
       "name": "main_1",
-      "filePath": "C:\\Users\\Adam\\Documents\\CatNip Workspace\\StockAnalyser\\main_1.py",
+      "filePath": "main_1.py",
       "isSelected": true,
       "environmentId": "python:3.11-slim",
       "runMode": "Code Run",
@@ -1136,9 +1904,24 @@
       "memoryLimitMb": 1024,
       "installMode": "Manual",
       "manualPackages": "yfinance\npandas\nnumpy\nmatplotlib\nchronos-forecasting",
-      "dockerImage": "python:3.11-slim",
-      "newDockerImageName": "Python3.11-CatNip-Server-Exec",
-      "showImageParametersOnRun": false,
+      "dockerImage": "python3-11-stockanalyser:python-3-11-slim",
+      "newDockerImageName": "Python3.11-StockAnalyser",
+      "showImageParametersOnRun": true,
+      "runInstance": ""
+    },
+    {
+      "name": "main_2",
+      "filePath": "main_2.py",
+      "isSelected": true,
+      "environmentId": "python:3.11-slim",
+      "runMode": "Code Run",
+      "timeoutSeconds": 3600,
+      "memoryLimitMb": 8192,
+      "installMode": "Manual",
+      "manualPackages": "torch\ntorchvision\nnumpy\nopencv-python-headless",
+      "dockerImage": "python3-11-stockanalyser:python-3-11-slim",
+      "newDockerImageName": "",
+      "showImageParametersOnRun": true,
       "runInstance": ""
     }
   ]

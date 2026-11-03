@@ -4,6 +4,8 @@ Dajesz listę tickerów, dostajesz dla każdego werdykt **STRONG BUY / BUY / HOL
 
 > **To nie jest porada inwestycyjna.** Program mechanicznie punktuje publiczne dane z Yahoo Finance. Nie czyta wiadomości, raportów kwartalnych ani komunikatów spółek. Zawsze weryfikuj wyniki i konsultuj decyzje ze specjalistą.
 
+Drugi program, **skaner sektorowy** (`main_2.py`), przegląda kilkaset spółek z giełd USA i w każdym z 20 tematów gospodarki (AI, hi-tech, półprzewodniki, farmacja, biotech, ropa i gaz, OZE, energia jądrowa, finanse, przemysł, konsumpcja, surowce, REIT…) wybiera 10 z największą szansą na wzrost w ciągu 1–6 miesięcy — patrz [Skaner sektorowy](#skaner-sektorowy-main_2py).
+
 Projekt jest grafem CatNip (`StockAnalyser.catnip`): każda klasa to osobny blok, a połączenia na płótnie odpowiadają zależnościom między nimi.
 
 ## Trzy osobne rzeczy: wskaźniki, prognoza, rekomendacja
@@ -194,7 +196,7 @@ W CatNip: w ustawieniach głównego bloku wybierz instalację pakietów **Manual
 
 ## Uruchomienie
 
-**W CatNip:** otwórz `StockAnalyser.catnip` i uruchom graf (blok główny: `Report`). Tickery i argumenty można podać w polu argumentów Run Engine (trafiają do `sys.argv`). Wykresy i tabela pojawiają się w zakładce Output.
+**W CatNip:** otwórz `StockAnalyser.catnip` i uruchom graf. Projekt ma dwa bloki główne: `Report` (`main_1.py`, analiza wybranych tickerów) i `ScreenerReport` (`main_2.py`, skaner sektorowy). Tickery i argumenty można podać w polu argumentów Run Engine (trafiają do `sys.argv`). Wykresy i tabela pojawiają się w zakładce Output.
 
 **Z terminala:**
 
@@ -202,9 +204,10 @@ W CatNip: w ustawieniach głównego bloku wybierz instalację pakietów **Manual
 .venv/Scripts/python.exe main_1.py                       # tickery z bloku Settings
 .venv/Scripts/python.exe main_1.py ASML NVDA --future 90 # wybrane tickery, prognoza 90 świec
 .venv/Scripts/python.exe tools/run.py TSLA --horizon 1wk # odtwarza moduły z .catnip i uruchamia
+.venv/Scripts/python.exe main_2.py                       # skaner: top 10 w każdym temacie, 1-6 mies.
 ```
 
-`main_1.py` i pliki `<Blok>.py` w katalogu projektu są generowane z `.catnip`. Edytuj bloki w CatNip, a nie te pliki.
+`main_1.py`, `main_2.py` i pliki `<Blok>.py` w katalogu projektu są generowane z `.catnip`. Edytuj bloki w CatNip, a nie te pliki.
 
 ## Konfiguracja
 
@@ -227,8 +230,28 @@ W CatNip: w ustawieniach głównego bloku wybierz instalację pakietów **Manual
 
 - tabela rankingowa w konsoli (najlepszy score na górze) i karta każdego tickera: score bloków, wagi i wkłady, backtest, prognoza (mediana, pasma, zmiana %), dane poprawione i możliwe błędne dane, po trzy najsilniejsze argumenty za i przeciw, uwagi o danych;
 - **tickery bez danych nie są ukrywane.** Symbol, dla którego Yahoo nie zwraca świec (w domyślnej liście `FB2A` i `SMSN`), dostaje pustą analizę **NO DATA**: wiersz na końcu tabeli ze score `n/a` i DATA 0%, kartę z powodem i trzema blokami `brak danych`, pusty wykres z napisem „Brak danych” oraz wiersze w JSON/CSV. W terminalu pojawia się notatka z powodem i podpowiedzią, by sprawdzić symbol w Yahoo (np. sufiks giełdy `.DE`, `.KS`). Powtórzony ticker (w domyślnej liście dwa razy `MU`) jest analizowany raz;
-- `output/<TICKER>_<interwał>.png` — wykres: świece + SMA 20/50/200 + Bollinger + prognoza, wolumen, RSI, MACD;
+- `output/<TICKER>_<interwał>.png` — wykres (z wyraźną siatką główną i pomocniczą): świece + SMA 20/50/200 + Bollinger + prognoza, wolumen, RSI, MACD;
 - `output/analysis.json` — wszystko, łącznie z każdym sygnałem; `output/analysis.csv` — jeden wiersz na ticker.
+
+## Skaner sektorowy (`main_2.py`)
+
+Nie szuka „top gainers”. Każda spółka dostaje percentyl każdego czynnika **w obrębie swojego tematu** (bank porównywany z bankami, biotech z biotechami), a wynik 0–100 to średnia ważona tych percentyli (50 = środek tematu). Czynniki i domyślne wagi (`ScreenerSettings.FACTOR_WEIGHTS`):
+
+| Czynnik | Waga | Dlaczego na 1–6 mies. |
+| --- | --- | --- |
+| momentum 12-1 i 6-1 mies. | 0.14 / 0.08 | najlepiej udokumentowany efekt średnioterminowy; pomija ostatni miesiąc |
+| bliskość szczytu 52 tyg., trend nad SMA200 | 0.08 / 0.06 | spółki blisko szczytu i w trendzie wzrostowym zwykle go kontynuują |
+| potencjał do ceny docelowej, rekomendacje analityków | 0.10 / 0.06 | oczekiwania rynku (min. 3 opinie) |
+| oczekiwany wzrost EPS, wzrost zysków, wzrost przychodów | 0.08 / 0.06 / 0.06 | rewizje i dynamika wyników |
+| ROE, marża netto, FCF yield, PEG | 0.04 / 0.04 / 0.05 / 0.04 | jakość i wycena względem wzrostu |
+| niska zmienność, brak przegrzania w ostatnim miesiącu | 0.03 / 0.03 | kara za ryzyko i świeży „pump” |
+| ocena StockAnalyser, prognoza Chronos-2 (126 sesji) | 0.05 / 0.03 | istniejąca analiza i model AI (zna tylko historię cen, stąd mała waga) |
+
+Filtry: kapitalizacja ≥ 2 mld USD, obrót ≥ 20 mln USD dziennie, cena ≥ 5 USD, ≥ 130 sesji historii, dane dla ≥ 60% wag. Kandydaci tematu to lista wpisana ręcznie w `ScreenerSettings.THEMES` plus największe spółki z pasujących branż wyszukiwarki Yahoo (`USE_YAHOO_SCREENER`). Skan ~350 tickerów trwa zwykle kilka minut (8 równoległych pobrań, `FETCH_WORKERS`).
+
+Wyniki: tabela na temat w konsoli (wynik, cena, momentum 6-1, potencjał do celu, wzrost EPS, prognoza AI, atuty i ryzyka, odrzucone z powodem), wykres słupkowy `output/screener/top_<temat>.png` oraz `output/screener/screener.json` i `screener.csv`.
+
+> Ranking jest względny: mówi, które spółki w temacie mają najlepszy zestaw czynników, a nie że wzrosną. Czynniki i wagi nie były testowane historycznie w tym projekcie.
 
 ## Struktura projektu (bloki)
 
@@ -240,6 +263,11 @@ Score, TechnicalAnalysis ──> Backtest
 Settings ──> PriceForecaster
 Settings, MarketData, Recommendation, CandleChart, Backtest, PriceForecaster ──> Report (main)
 PriceForecast — rekord danych (dataclass), bez połączeń
+
+Settings ──> ScreenerSettings ──> SectorUniverse, UniverseFetcher, FactorModel, ThemeRanker, ScreenerChart
+MarketData ──> UniverseFetcher;  Recommendation, PriceForecaster ──> FactorModel
+ScreenerSettings, SectorUniverse, UniverseFetcher, FactorModel, ThemeRanker, ScreenerChart ──> ScreenerReport (main 2)
+StockCandidate, RankedPick — rekordy danych skanera, bez połączeń
 ```
 
 | Blok | Do czego służy |
@@ -257,6 +285,14 @@ PriceForecast — rekord danych (dataclass), bez połączeń
 | `PriceForecast` | rekord danych z prognozą jednego tickera (mediana, pasma, `change_pct`) |
 | `CandleChart` | rysuje czteropanelowy wykres PNG (z „! Możliwe błędne dane”, gdy trzeba; pusty wykres dla NO DATA) |
 | `Report` | blok główny: uruchamia potok, drukuje raport, zapisuje JSON/CSV |
+| `ScreenerSettings` | tematy i kandydaci skanera, filtry, wagi czynników, horyzont prognozy; kopia `Settings` dla skanu |
+| `SectorUniverse` | lista kandydatów każdego tematu: ręczna + największe spółki z branż Yahoo |
+| `UniverseFetcher` | równoległe pobranie danych wszystkich kandydatów przez `MarketData.fetch` |
+| `FactorModel` | czynniki 1–6 mies. jednej spółki → `StockCandidate` |
+| `ThemeRanker` | filtry, percentyle w temacie, wynik 0–100, top N → `RankedPick` |
+| `ScreenerChart` | wykres słupkowy top spółek tematu |
+| `StockCandidate`, `RankedPick` | rekordy danych skanera |
+| `ScreenerReport` | drugi blok główny: skaner sektorowy, tabele, JSON/CSV |
 
 Każdy blok ma własną stronę dokumentacji (`<Blok>.md`), którą CatNip pokazuje w edytorze.
 

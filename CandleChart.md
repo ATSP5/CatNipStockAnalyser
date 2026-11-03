@@ -71,3 +71,23 @@ Tekst (albo `None`) pokazywany w czerwonej ramce w prawym dolnym rogu panelu cen
 ## Pasmo 24–76%
 
 Gdy `forecast.has_inner()`, wewnątrz jasnego pasma 10–90% rysowane jest ciemniejsze pasmo `inner_low`–`inner_high` (domyślnie 24–76%, w legendzie „median ±26 pp”), też startujące od ostatniego zamknięcia.
+
+## GRID_COLOUR
+
+Kolor linii siatki (`#9e9e9e`, neutralny szary), wspólny dla siatki głównej i pomocniczej na wszystkich czterech panelach. Dowolny kolor matplotlib; ciemniejszy kolor daje mocniejszą siatkę. Wpływa wyłącznie na wygląd PNG, nie na analizę.
+
+## GRID_MAJOR
+
+Styl siatki głównej — linie przy każdej opisanej podziałce (ceny, wolumen, RSI, MACD na osi Y; daty na osi X). Domyślnie `alpha 0.55`, `linewidth 0.8`, linia ciągła. `alpha` w zakresie 0–1 (0 = niewidoczna, 1 = pełny kolor); `linewidth` w punktach, sensownie 0.3–2. Poza zakresem `alpha` matplotlib zgłasza błąd i wykres nie powstaje (Report zapisze to w błędach tickera).
+
+## GRID_MINOR
+
+Styl siatki pomocniczej między liniami głównymi — domyślnie `alpha 0.30`, `linewidth 0.5`, linia kropkowana, żeby nie zagłuszała świec. Te same zakresy co `GRID_MAJOR`.
+
+## GRID_MINOR_DIVISIONS
+
+Na ile komórek siatka pomocnicza dzieli jedną komórkę siatki głównej (domyślnie `4`, na obu osiach). Liczba całkowita ≥ 1; `1` wyłącza praktycznie siatkę pomocniczą, wartości > 6 robią gęstą „kratkę”.
+
+## _grid
+
+Rysuje siatkę na jednym panelu: ustawia `AutoMinorLocator(GRID_MINOR_DIVISIONS)` na obu osiach, siatkę główną (`GRID_MAJOR`) i pomocniczą (`GRID_MINOR`) w kolorze `GRID_COLOUR`, krótkie podziałki pomocnicze i umieszcza siatkę pod danymi (`set_axisbelow`). Wywoływana przez `render` dla każdego z czterech paneli.
