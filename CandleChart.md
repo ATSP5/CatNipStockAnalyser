@@ -10,7 +10,7 @@ Inside CatNip the run engine replaces `plt.show()` with its own capture, which p
 
 ## draw
 
-`draw(verdict, settings, forecast=None, note=None)` — z `forecast` (PriceForecast) rysuje też prognozę AI; `note` to powód jej braku, pokazywany na wykresie.
+`draw(verdict, settings, forecast=None, note=None, patterns=None)` — z `forecast` (PriceForecast) rysuje też prognozę AI; `note` to powód jej braku, pokazywany na wykresie; z `patterns` (PatternReading) rysuje formacje świecowe.
 
 Renders a verdict and saves it and returns the file path. The class method is the intended entry point. A verdict with fewer than 2 candles (NO DATA) gets an empty chart from `_render_empty`, so its analysis is still visible.
 
@@ -91,3 +91,31 @@ Na ile komórek siatka pomocnicza dzieli jedną komórkę siatki głównej (domy
 ## _grid
 
 Rysuje siatkę na jednym panelu: ustawia `AutoMinorLocator(GRID_MINOR_DIVISIONS)` na obu osiach, siatkę główną (`GRID_MAJOR`) i pomocniczą (`GRID_MINOR`) w kolorze `GRID_COLOUR`, krótkie podziałki pomocnicze i umieszcza siatkę pod danymi (`set_axisbelow`). Wywoływana przez `render` dla każdego z czterech paneli.
+
+## patterns
+
+`PatternReading` z bloku `PatternDetector` (przez `Report`) albo `None`. Argument konstruktora i `draw`, domyślnie `None` — wtedy wykres wygląda jak dawniej. Gdy jest, `_patterns` rysuje na panelu ceny okno formacji i każdą formację, a tytuł dostaje dopisek `| formacje BULL/BEAR/NEUTRAL/NONE`. Formacje nie zmieniają oceny (`rating`, `score`) pokazywanej na wykresie.
+
+## _patterns
+
+Rysuje formacje świecowe:
+
+- **okno formacji** — jasnożółte tło (`PATTERN_WINDOW`) od początku automatycznie dobranego okna do dzisiejszej świecy, pomarańczowa kropkowana linia przez wszystkie widoczne panele i podpis „okno formacji: N świec” u dołu panelu ceny;
+- **każda formacja** — przerywana ramka obejmująca jej świece (od najniższego `low` do najwyższego `high`), zielona dla BULL, czerwona dla BEAR; znacznik ▲ pod ramką (BULL) albo ▼ nad nią (BEAR) i kod formacji (`ENG`, `MS`, `H`…). Formacja zanegowana przez następną świecę jest półprzezroczysta. Znaczniki bliskich formacji tego samego kierunku (< 4 świece) są rozsuwane na 3 poziomy, żeby się nie nakładały;
+- formacja, której początek wypada przed rysowanym wycinkiem, jest pomijana (w praktyce nie występuje, bo okno jest przycinane do `chart_candles`).
+
+## _pattern_box
+
+Ramka w prawym górnym rogu panelu ceny: werdykt formacji z `net`, długość okna z uzasadnieniem i `PATTERN_LIST` najnowszych formacji (▲/▼, kod, nazwa, ile świec temu, stan potwierdzenia); starsze są zliczone jako „... i N starszych”. Kolor obramowania z `BIAS_COLOUR`.
+
+## BIAS_COLOUR
+
+Kolor obramowania ramki według werdyktu: BULL = `UP` (turkus), BEAR = `DOWN` (czerwony), NEUTRAL = bursztyn, NONE = szary.
+
+## PATTERN_WINDOW
+
+Kolor tła okna formacji (`#fff8e1`, rysowany z `alpha 0.6` pod świecami). Wpływa tylko na wygląd.
+
+## PATTERN_LIST
+
+Ile najnowszych formacji wypisać w ramce, domyślnie `5`. Liczba całkowita ≥ 0; więcej = wyższa ramka, która może zasłonić świece. Pełna lista jest w karcie tickera i w `analysis.json`.

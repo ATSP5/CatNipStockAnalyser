@@ -74,6 +74,33 @@ Every verdict carrying a given label, e.g. `by_rating("STRONG BUY")`.
 
 The whole run keyed by ticker, for using this block's output from another block rather than reading it off the console.
 
+## pattern_detector
+
+Argument konstruktora: `PatternDetector` (wejście `PatternDetector` ← blok PatternDetector), domyślnie `None` → raport bez formacji świecowych. Uruchomienie bloku jako main (`__main__`) buduje `PatternDetector(settings)` i przekazuje go do Report.
+
+## patterns
+
+Słownik ticker → `PatternReading` dla tickerów z danymi. Błąd wykrywania formacji jednego tickera trafia do jego notatek (`patterns: …`) i nie przerywa reszty; ticker NO DATA nie ma wpisu.
+
+## _patterns(verdict)
+
+Wywołuje `pattern_detector.detect(verdict)` dla jednego tickera, zapisuje wynik w `patterns` i zwraca go, żeby trafił do `CandleChart.draw(patterns=…)`. `None`, gdy detektor nie jest podłączony, ticker nie ma danych albo historia jest za krótka.
+
+## _pattern_cell(verdict)
+
+Werdykt formacji tickera do kolumny `CANDLES` tabeli podsumowania; `n/a`, gdy go nie ma.
+
+## _print_patterns(reading)
+
+W karcie tickera, przed sekcjami jakości danych: linia `Formacje świecowe: BULL (net +0.35)  bull 1 / bear 2  w oknie 32 świec -- …` i do 8 najnowszych formacji (kod, nazwa, kierunek, ile świec temu, data, siła, stan potwierdzenia).
+
+## Formacje świecowe w wynikach
+
+- Tabela podsumowania: kolumna `CANDLES` z werdyktem formacji (`BULL`, `BEAR`, `NEUTRAL`, `NONE`, `n/a` bez detektora/danych). **Nie wpływa** na CALL ani SCORE.
+- `analysis.json`: `candle_patterns` w każdym wyniku (`PatternReading.to_dict()`).
+- `analysis.csv`: kolumny `pattern_bias`, `pattern_net`, `pattern_window`, `pattern_bull`, `pattern_bear`, `pattern_latest` (najnowsza formacja: nazwa, kierunek, świece temu).
+- Wykres: formacje i okno są rysowane przez `CandleChart`.
+
 ## forecaster
 
 Argument konstruktora: PriceForecaster (wejście `Forecaster` ← blok PriceForecaster). `None` → raport bez prognoz. Uruchomienie bloku jako main (`__main__`) buduje `Settings()` i `PriceForecaster(settings)` i przekazuje je do Report.

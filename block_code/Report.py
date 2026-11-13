@@ -4,8 +4,10 @@ Prints a ranked summary table first -- best call at the top -- then a detailed
 card per ticker showing what each of the three blocks found and which
 individual signals drove the number, and how the technical score has fared in
 a walk-forward backtest, and -- with a PriceForecaster -- where the AI model
-expects the price to be FutureHorizon candles ahead. Writes the same content to
-JSON and CSV beside the charts.
+expects the price to be FutureHorizon candles ahead, and -- with a
+PatternDetector -- which candlestick formations (BULL / BEAR) appeared in the
+automatically sized window back from today. Writes the same content to JSON
+and CSV beside the charts.
 
 Nothing is hidden: a ticker Yahoo returns no candles for is still listed, as an
 empty NO DATA analysis with the reason, and a ticker whose fundamentals held an
@@ -21,6 +23,7 @@ import traceback
 from Backtest import Backtest
 from CandleChart import CandleChart
 from MarketData import MarketData
+from PatternDetector import PatternDetector
 from PriceForecaster import PriceForecaster
 from Recommendation import Recommendation
 from Score import Score
@@ -40,9 +43,11 @@ class Report:
     }
     SUSPECT_MARK = "!"
 
-    def __init__(self, settings=None, draw=None, quiet=False, forecaster=None):
+    def __init__(self, settings=None, draw=None, quiet=False, forecaster=None,
+                 pattern_detector=None):
         self.settings = settings or Settings()
         self.forecaster = forecaster
+        self.pattern_detector = pattern_detector
         self.quiet = quiet
         self.draw = self.settings.draw_chart if draw is None else draw
         self.verdicts = []
@@ -50,6 +55,7 @@ class Report:
         self.charts = {}
         self.backtests = {}
         self.forecasts = {}
+        self.patterns = {}
         self.run()
 
     # -- pipeline ----------------------------------------------------------
@@ -91,11 +97,13 @@ class Report:
                     verdict.market.errors.append("backtest: %s" % problem)
 
             forecast = self._forecast(verdict)
+            reading = self._patterns(verdict)
 
             if self.draw:
                 try:
                     path = CandleChart.draw(verdict, self.settings, forecast,
-                                            note=self._forecast_note(forecast))
+                                            note=self._forecast_note(forecast),
+                                            patterns=reading)
                     if path:
                         self.charts[verdict.ticker] = path
                 except Exception as problem:        # noqa: BLE001
@@ -134,6 +142,23 @@ class Report:
             self.forecasts[verdict.ticker] = forecast
         return forecast
 
+    def _patterns(self, verdict):
+        """Candlestick patterns of the verdict's candles, or None."""
+        if self.pattern_detector is None or not verdict.has_data():
+            return None
+        try:
+            reading = self.pattern_detector.detect(verdict)
+        except Exception as problem:                # noqa: BLE001
+            verdict.market.errors.append("patterns: %s" % problem)
+            return None
+        if reading is not None:
+            self.patterns[verdict.ticker] = reading
+        return reading
+
+    def _pattern_cell(self, verdict):
+        reading = self.patterns.get(verdict.ticker)
+        return "n/a" if reading is None else reading.bias
+
     # -- rendering ---------------------------------------------------------
 
     def print_summary(self):
@@ -142,14 +167,14 @@ class Report:
             self._print_skipped()
             return
 
-        header = ("%-3s %-8s %-11s %8s %6s %8s %9s %8s"
+        header = ("%-3s %-8s %-11s %8s %6s %8s %9s %8s %8s"
                   % ("", "TICKER", "CALL", "SCORE", "DATA", "TECH", "VALUATION",
-                     "SUPPLY"))
+                     "SUPPLY", "CANDLES"))
         self._say(header)
         self._say("-" * len(header))
 
         for verdict in self.verdicts:
-            self._say("%-3s %-8s %-11s %8s %5.0f%% %8s %9s %8s" % (
+            self._say("%-3s %-8s %-11s %8s %5.0f%% %8s %9s %8s %8s" % (
                 self.RATING_MARK.get(verdict.rating, "")
                 + (self.SUSPECT_MARK if verdict.market.has_suspect_data() else ""),
                 verdict.ticker,
@@ -159,6 +184,7 @@ class Report:
                 self._cell(verdict.block_score("technical")),
                 self._cell(verdict.block_score("valuation")),
                 self._cell(verdict.block_score("supply")),
+                self._pattern_cell(verdict),
             ))
         self._say("-" * len(header))
         self._say(self.forecast_status())
@@ -238,6 +264,8 @@ class Report:
                         100 * forecast.inner_quantiles[1],
                         forecast.inner_low[-1], forecast.inner_high[-1]))
 
+            self._print_patterns(self.patterns.get(verdict.ticker))
+
             self._print_data_quality(verdict.market)
 
             self._say("")
@@ -264,6 +292,19 @@ class Report:
             self._say("    %+6.0f  %-30s %s" % (
                 signal.score, "%s (%s)" % (signal.label, name), signal.detail,
             ))
+
+    def _print_patterns(self, reading):
+        """Candlestick formations in the automatic window, newest first."""
+        if reading is None:
+            return
+        self._say("")
+        self._say("  Formacje świecowe: %s" % reading.summary())
+        for pattern in reading.patterns[:8]:
+            self._say("    %-4s %-21s %-4s %2d świec temu (%s)  siła %.2f, %s" % (
+                pattern.code, pattern.name, pattern.direction, pattern.bars_ago,
+                str(pattern.timestamp)[:10], pattern.strength, pattern.status()))
+        if len(reading.patterns) > 8:
+            self._say("    ... i %d starszych" % (len(reading.patterns) - 8))
 
     def _print_data_notes(self):
         """Footnotes under the table for empty and suspect analyses."""
@@ -328,6 +369,9 @@ class Report:
             forecast = self.forecasts.get(verdict.ticker)
             if forecast is not None:
                 entry["forecast"] = forecast.to_dict()
+            reading = self.patterns.get(verdict.ticker)
+            if reading is not None:
+                entry["candle_patterns"] = reading.to_dict()
             results.append(entry)
 
         pooled, samples = Backtest.pooled_ic(self.backtests.values())
@@ -379,7 +423,9 @@ class Report:
             "backtest_ic", "backtest_strategy_pct", "backtest_buy_hold_pct",
             "forecast_steps", "forecast_median", "forecast_low",
             "forecast_high", "forecast_inner_low", "forecast_inner_high",
-            "forecast_change_pct", "data_warnings", "data_fixes",
+            "forecast_change_pct", "pattern_bias", "pattern_net",
+            "pattern_window", "pattern_bull", "pattern_bear", "pattern_latest",
+            "data_warnings", "data_fixes",
         ])
         for verdict in self.verdicts:
             low, high = verdict.market.year_range()
@@ -387,6 +433,8 @@ class Report:
             tested = backtest.to_dict() if backtest is not None else {}
             forecast = self.forecasts.get(verdict.ticker)
             ahead = forecast.to_dict() if forecast is not None else {}
+            reading = self.patterns.get(verdict.ticker)
+            latest = reading.patterns[0] if reading and reading.patterns else None
             writer.writerow([
                 verdict.ticker,
                 verdict.market.name(),
@@ -412,6 +460,13 @@ class Report:
                 ahead.get("inner_low_end"),
                 ahead.get("inner_high_end"),
                 ahead.get("change_pct"),
+                reading.bias if reading else None,
+                round(reading.net(), 3) if reading else None,
+                reading.window if reading else None,
+                reading.count("BULL") if reading else None,
+                reading.count("BEAR") if reading else None,
+                "%s (%s, %d)" % (latest.name, latest.direction, latest.bars_ago)
+                if latest else None,
                 " | ".join(verdict.market.data_warnings),
                 " | ".join(verdict.market.data_fixes),
             ])
@@ -432,4 +487,5 @@ class Report:
 
 if __name__ == "__main__":
     run_settings = Settings()
-    Report(run_settings, forecaster=PriceForecaster(run_settings))
+    Report(run_settings, forecaster=PriceForecaster(run_settings),
+           pattern_detector=PatternDetector(run_settings))

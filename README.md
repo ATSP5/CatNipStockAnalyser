@@ -1,6 +1,6 @@
 # StockAnalyser
 
-Dajesz listę tickerów, dostajesz dla każdego werdykt **STRONG BUY / BUY / HOLD / SELL / STRONG SELL**, wynik liczbowy (*score*), czteropanelowy wykres świecowy z prognozą modelu AI **Chronos-2** oraz uzasadnienie: które sygnały ciągną w górę, które w dół, i jak techniczny score sprawdzał się historycznie.
+Dajesz listę tickerów, dostajesz dla każdego werdykt **STRONG BUY / BUY / HOLD / SELL / STRONG SELL**, wynik liczbowy (*score*), czteropanelowy wykres świecowy z prognozą modelu AI **Chronos-2** i zaznaczonymi formacjami świecowymi (**BULL / BEAR**) oraz uzasadnienie: które sygnały ciągną w górę, które w dół, i jak techniczny score sprawdzał się historycznie.
 
 > **To nie jest porada inwestycyjna.** Program mechanicznie punktuje publiczne dane z Yahoo Finance. Nie czyta wiadomości, raportów kwartalnych ani komunikatów spółek. Zawsze weryfikuj wyniki i konsultuj decyzje ze specjalistą.
 
@@ -17,6 +17,7 @@ Program rozdziela trzy rzeczy, które łatwo pomylić na wykresie:
 | **Wskaźniki historyczne** (SMA, Bollinger, RSI, MACD, wolumen, ADX, stochastic…) | `Indicators` → `TechnicalAnalysis` | **Tak** — to blok *technical* |
 | **Wycena i podaż akcji** (P/E, PEG, FCF yield, liczba akcji, short interest…) | `MarketData` → `ValuationAnalysis`, `SupplyAnalysis` | **Tak** — bloki *valuation* i *supply*, z wagą zależną od interwału |
 | **Prognoza ceny Chronos-2** (fioletowy wachlarz) | `PriceForecaster` → `PriceForecast` | **Nie.** Prognoza jest tylko informacją na wykresie i w raporcie; nie wchodzi do score ani do rekomendacji |
+| **Formacje świecowe** (▲/▼ na wykresie, kolumna `CANDLES`) | `PatternDetector` → `PatternReading` | **Nie.** Osobny werdykt BULL/BEAR, tylko informacyjnie |
 
 ## Jak powstaje score i rekomendacja
 
@@ -178,6 +179,19 @@ Tego, czego naprawić się nie da (free float ASML: brak drugiego źródła), pr
 
 Wartość uznaje się za niemożliwą, gdy free float przekracza liczbę akcji, P/B lub P/S > 200, EV/EBITDA > 500, |FCF yield| > 50%, albo gdy waluty się różnią, a kursu lub składników do przeliczenia brak.
 
+## Formacje świecowe
+
+`PatternDetector` szuka 22 klasycznych formacji (m.in. Hammer, Shooting Star, Engulfing, Harami, Piercing Line, Dark Cloud Cover, Morning/Evening Star, Three White Soldiers/Black Crows, Three Inside Up/Down, Tweezer, Doji, Marubozu) i oznacza każdą jako **BULL** albo **BEAR**.
+
+- **Okno dobierane automatycznie.** Formacja ma znaczenie, dopóki nie rozegra się ruch, który zapowiada. ZigZag z progiem 2×ATR(14) dzieli historię na swingi, a okno sięga do początku 2 ostatnich zakończonych swingów (ostatni zwrot + bieżący ruch), w granicach 15–120 świec i nie dalej niż rysowany wycinek wykresu. Spokojny trend daje długie okno, rynek rozedrgany — krótkie.
+- **Kontekst trendu.** Formacje odwrócenia liczą się tylko po pasującym trendzie (bycze po spadku ≥ 1 ATR w 6 świecach, niedźwiedzie po wzroście).
+- **Siła i potwierdzenie.** Każda formacja ma bazową wiarygodność (0,40–0,75), × 1,25 gdy następna świeca ją potwierdziła, × 0,5 gdy zanegowała, × 1,15 przy wolumenie powyżej średniej.
+- **Werdykt.** Siły ważone świeżością (półokres = ¼ okna) dają `net` od −1 do +1: > 0,2 → **BULL**, < −0,2 → **BEAR**, pomiędzy → **NEUTRAL**, brak formacji → **NONE**.
+- **Na wykresie:** żółte tło okna, ramki wokół świec formacji, ▲ zielone (BULL) pod / ▼ czerwone (BEAR) nad świecami z kodem formacji, ramka z werdyktem i listą najnowszych formacji, werdykt w tytule.
+- **W raporcie:** kolumna `CANDLES` w tabeli, sekcja „Formacje świecowe” w karcie tickera, `candle_patterns` w JSON, kolumny `pattern_*` w CSV.
+
+Parametry (`min_window`, `max_window`, `swing_atr`, `swings`, `trend_candles`, `trend_atr`, `bias_threshold`) są argumentami konstruktora `PatternDetector` — opis i zakresy na jego stronie dokumentacji. Siły bazowe formacji pochodzą z literatury i nie były testowane historycznie w tym projekcie.
+
 ## Wymagania
 
 - **Python 3.10+.** Domyślne „Local Shell (system Python)” w CatNip na tej maszynie to Python 3.5, który nie uruchomi bloków. Wybierz `.venv` / Python 3.10+.
@@ -230,7 +244,7 @@ W CatNip: w ustawieniach głównego bloku wybierz instalację pakietów **Manual
 
 - tabela rankingowa w konsoli (najlepszy score na górze) i karta każdego tickera: score bloków, wagi i wkłady, backtest, prognoza (mediana, pasma, zmiana %), dane poprawione i możliwe błędne dane, po trzy najsilniejsze argumenty za i przeciw, uwagi o danych;
 - **tickery bez danych nie są ukrywane.** Symbol, dla którego Yahoo nie zwraca świec (w domyślnej liście `FB2A` i `SMSN`), dostaje pustą analizę **NO DATA**: wiersz na końcu tabeli ze score `n/a` i DATA 0%, kartę z powodem i trzema blokami `brak danych`, pusty wykres z napisem „Brak danych” oraz wiersze w JSON/CSV. W terminalu pojawia się notatka z powodem i podpowiedzią, by sprawdzić symbol w Yahoo (np. sufiks giełdy `.DE`, `.KS`). Powtórzony ticker (w domyślnej liście dwa razy `MU`) jest analizowany raz;
-- `output/<TICKER>_<interwał>.png` — wykres (z wyraźną siatką główną i pomocniczą): świece + SMA 20/50/200 + Bollinger + prognoza, wolumen, RSI, MACD;
+- `output/<TICKER>_<interwał>.png` — wykres (z wyraźną siatką główną i pomocniczą): świece + SMA 20/50/200 + Bollinger + prognoza + formacje świecowe z oknem i werdyktem, wolumen, RSI, MACD;
 - `output/analysis.json` — wszystko, łącznie z każdym sygnałem; `output/analysis.csv` — jeden wiersz na ticker.
 
 ## Skaner sektorowy (`main_2.py`)
@@ -261,8 +275,9 @@ Score             ──> SupplyAnalysis
 Score, Indicators, TechnicalAnalysis, ValuationAnalysis, SupplyAnalysis ──> Recommendation
 Score, TechnicalAnalysis ──> Backtest
 Settings ──> PriceForecaster
-Settings, MarketData, Recommendation, CandleChart, Backtest, PriceForecaster ──> Report (main)
-PriceForecast — rekord danych (dataclass), bez połączeń
+Settings ──> PatternDetector
+Settings, MarketData, Recommendation, CandleChart, Backtest, PriceForecaster, PatternDetector ──> Report (main)
+PriceForecast, CandlePattern, PatternReading — rekordy danych (dataclass), bez połączeń
 
 Settings ──> ScreenerSettings ──> SectorUniverse, UniverseFetcher, FactorModel, ThemeRanker, ScreenerChart
 MarketData ──> UniverseFetcher;  Recommendation, PriceForecaster ──> FactorModel
@@ -283,7 +298,10 @@ StockCandidate, RankedPick — rekordy danych skanera, bez połączeń
 | `Backtest` | test walk-forward score technicznego: rank IC, strategia BUY-only vs buy & hold (do wejścia `Score` bloku `Report`) |
 | `PriceForecaster` | ładuje Chronos-2 i liczy kwantyle przyszłych cen zamknięcia |
 | `PriceForecast` | rekord danych z prognozą jednego tickera (mediana, pasma, `change_pct`) |
-| `CandleChart` | rysuje czteropanelowy wykres PNG (z „! Możliwe błędne dane”, gdy trzeba; pusty wykres dla NO DATA) |
+| `PatternDetector` | wykrywa formacje świecowe w automatycznie dobranym oknie i wydaje werdykt BULL/BEAR |
+| `CandlePattern` | rekord danych jednej formacji (nazwa, kierunek, położenie, siła, potwierdzenie) |
+| `PatternReading` | rekord danych z wynikiem: okno, lista formacji, werdykt BULL/BEAR/NEUTRAL/NONE |
+| `CandleChart` | rysuje czteropanelowy wykres PNG z formacjami świecowymi (z „! Możliwe błędne dane”, gdy trzeba; pusty wykres dla NO DATA) |
 | `Report` | blok główny: uruchamia potok, drukuje raport, zapisuje JSON/CSV |
 | `ScreenerSettings` | tematy i kandydaci skanera, filtry, wagi czynników, horyzont prognozy; kopia `Settings` dla skanu |
 | `SectorUniverse` | lista kandydatów każdego tematu: ręczna + największe spółki z branż Yahoo |
@@ -302,6 +320,7 @@ Każdy blok ma własną stronę dokumentacji (`<Blok>.md`), którą CatNip pokaz
 - Backtest obejmuje tylko blok technical i zwrot **następnej świecy**. Nie mówi nic o horyzoncie 90 sesji z prognozy.
 - Prognoza Chronos-2 nie jest jeszcze walidowana (patrz plan wyżej).
 - Dane fundamentalne Yahoo bywają błędne, szczególnie dla ADR. Program przelicza waluty i odrzuca wartości niemożliwe (znak „!”), ale błąd mieszczący się w wiarygodnym zakresie przejdzie niezauważony.
+- Formacje świecowe są wykrywane regułami geometrycznymi; ich siły bazowe nie były walidowane na danych, a werdykt BULL/BEAR nie wchodzi do score.
 - Prognozowane daty pomijają święta giełdowe, a dla intraday także godziny sesji.
 
 ## Licencja

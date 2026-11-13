@@ -51,24 +51,32 @@ class CandleChart:
         "NO DATA": "#8a8a8a",
     }
 
-    def __init__(self, verdict, settings, forecast=None, note=None):
+    BIAS_COLOUR = {"BULL": UP, "BEAR": DOWN, "NEUTRAL": "#c9a227", "NONE": MUTED}
+    PATTERN_WINDOW = "#fff8e1"
+    PATTERN_LIST = 5             # newest patterns listed in the chart's box
+
+    def __init__(self, verdict, settings, forecast=None, note=None,
+                 patterns=None):
         self.verdict = verdict
         self.settings = settings
         self.forecast = forecast
         self.note = note
+        self.patterns = patterns
         self.market = verdict.market
         self.path = None
 
     # -- entry point -------------------------------------------------------
 
     @classmethod
-    def draw(cls, verdict, settings, forecast=None, note=None):
+    def draw(cls, verdict, settings, forecast=None, note=None, patterns=None):
         """Render and save. Returns the file path, or None if it could not.
 
         note: shown on the price panel when a forecast was wanted but is
         missing, so a chart without one says why.
+        patterns: a PatternReading; its window and formations are drawn on
+        the price panel.
         """
-        chart = cls(verdict, settings, forecast, note)
+        chart = cls(verdict, settings, forecast, note, patterns)
         return chart.render()
 
     def render(self):
@@ -91,6 +99,7 @@ class CandleChart:
         self._rsi_panel(axes[2], window, positions)
         self._macd_panel(axes[3], window, positions)
         self._forecast(axes[0], window)
+        self._patterns(axes, window)
         self._note(axes[0])
         self._time_axis(axes[3], window)
         self._today_line(axes, window)
@@ -268,6 +277,78 @@ class CandleChart:
                   label="Forecast median (%s)" % self.forecast.model.split("/")[-1])
         axis.legend(loc="upper left", fontsize=8, framealpha=0.85, ncol=3)
 
+    def _patterns(self, axes, window):
+        """Pattern window, each formation boxed and marked, and the verdict box."""
+        reading = self.patterns
+        if reading is None:
+            return
+        axis = axes[0]
+        count = len(window)
+        start = max(-0.5, count - reading.window - 0.5)
+        axis.axvspan(start, count - 0.5, color=self.PATTERN_WINDOW, alpha=0.6,
+                     zorder=0, linewidth=0)
+        for panel in axes:
+            if panel.get_visible():
+                panel.axvline(start, color="#f9a825", linestyle=":",
+                              linewidth=1.1, alpha=0.9, zorder=6)
+        axis.text(start + 0.4, 0.07, "okno formacji: %d świec" % reading.window,
+                  transform=axis.get_xaxis_transform(), ha="left", va="bottom",
+                  fontsize=7.5, color="#f57f17", zorder=7)
+
+        span = float(window["High"].max() - window["Low"].min()) or 1.0
+        unit = 0.025 * span
+        last_x = {"BULL": None, "BEAR": None}
+        level = {"BULL": 0, "BEAR": 0}
+        for pattern in sorted(reading.patterns, key=lambda p: -p.bars_ago):
+            right = count - 1 - pattern.bars_ago
+            left = right - pattern.length + 1
+            if left < 0:
+                continue
+            colour = self.UP if pattern.bullish else self.DOWN
+            axis.add_patch(Rectangle(
+                (left - 0.45, pattern.low), right - left + 0.9,
+                pattern.high - pattern.low, facecolor=colour, alpha=0.10,
+                edgecolor=colour, linewidth=0.9, linestyle="--", zorder=1))
+
+            side = pattern.direction
+            previous = last_x[side]
+            level[side] = (level[side] + 1) % 3 \
+                if previous is not None and right - previous < 4 else 0
+            last_x[side] = right
+            offset = unit * (1.2 + 1.6 * level[side])
+            alpha = 1.0 if pattern.confirmed is not False else 0.45
+            if pattern.bullish:
+                y, marker, va = pattern.low - offset, "^", "top"
+                text_y = y - 0.35 * unit
+            else:
+                y, marker, va = pattern.high + offset, "v", "bottom"
+                text_y = y + 0.35 * unit
+            axis.scatter([right], [y], marker=marker, s=46, color=colour,
+                         edgecolor="white", linewidth=0.6, alpha=alpha, zorder=8)
+            axis.text(right, text_y, pattern.code, ha="center", va=va,
+                      fontsize=6.5, fontweight="bold", color=colour, alpha=alpha,
+                      zorder=8)
+        self._pattern_box(axis, reading)
+
+    def _pattern_box(self, axis, reading):
+        lines = ["Formacje świecowe: %s (net %+.2f)" % (reading.bias, reading.net()),
+                 "okno %d świec -- %s" % (reading.window, reading.window_reason)]
+        for pattern in reading.patterns[:self.PATTERN_LIST]:
+            lines.append("%s %-4s %s, %d św. temu, %s" % (
+                "▲" if pattern.bullish else "▼", pattern.code, pattern.name,
+                pattern.bars_ago, pattern.status()))
+        hidden = len(reading.patterns) - self.PATTERN_LIST
+        if hidden > 0:
+            lines.append("... i %d starszych" % hidden)
+        if not reading.patterns:
+            lines.append("brak formacji w oknie")
+        colour = self.BIAS_COLOUR.get(reading.bias, self.INK)
+        axis.text(0.99, 0.97, "\n".join(lines), transform=axis.transAxes,
+                  ha="right", va="top", multialignment="left", fontsize=7,
+                  color=self.INK, zorder=9,
+                  bbox={"facecolor": "white", "edgecolor": colour, "alpha": 0.88,
+                        "boxstyle": "round,pad=0.35", "linewidth": 1.4})
+
     def _note(self, axis):
         if not self.note or self.forecast is not None:
             return
@@ -326,6 +407,8 @@ class CandleChart:
         if self.forecast is not None:
             title += "  |  forecast %d candles: %+.1f%%" % (
                 self.forecast.steps, self.forecast.change_pct())
+        if self.patterns is not None:
+            title += "  |  formacje %s" % self.patterns.bias
         return title
 
     def _destination(self):
