@@ -36,9 +36,58 @@ The price panel takes a little over three times the height of the others, since 
 
 The number of candles drawn comes from `Settings.CHART_CANDLES`, defaulting to the most recent 180. The indicators are calculated over the full history and only then trimmed for drawing, so a 200-candle average is still correct on the left-hand edge of the chart.
 
+## Nagłówek: legenda i ramka nad wykresem
+
+Legenda panelu ceny (`_price_legend`) i ramka formacji (`_pattern_box`) stoją w pasie między tytułem a panelem ceny, nie na nim — nie zasłaniają świec, średnich ani prognozy. `_layout` mierzy obie i dobiera wysokość pasa; panele mają zawsze tę samą wysokość (`PLOT_HEIGHT`), a rośnie cały obraz. Gdy legenda i ramka nie mieszczą się obok siebie na szerokości panelu, ramka idzie nad legendę. Legenda MACD zostaje w panelu MACD.
+
+## FIGURE_WIDTH
+Szerokość PNG w calach, `13.0` (przy `dpi=110` ≈ 1430 px). Większa = więcej miejsca na nagłówek i świece.
+
+## PLOT_HEIGHT
+Łączna wysokość czterech paneli w calach, `8.4`. Nie zależy od nagłówka. Większa = wyższe panele i wyższy PNG.
+
+## BOTTOM_BAND
+Pas pod panelami na daty osi X, `0.8` cala. Mniej niż ok. 0,7 może uciąć obrócone etykiety dat.
+
+## TITLE_BAND
+Pas na tytuł, rekomendację i `SUSPECT_TEXT`, `0.85` cala. Mniejszy może nałożyć ostrzeżenie o danych na nagłówek.
+
+## HEADER_GAP
+Odstęp (cale) między elementami nagłówka a panelem i między ramką a legendą, gdy stoją jedna nad drugą, `0.06`.
+
+## BOX_PAD
+Zapas (cale) doliczany do zmierzonego tekstu ramki na jej obramowanie i przesunięcie, `0.12`. Za mały = ramka może dotknąć tytułu.
+
+## LEFT / RIGHT
+Lewa i prawa krawędź paneli jako ułamek szerokości obrazu, `0.07` / `0.94`. Prawa krawędź ramki formacji i napis rekomendacji są do niej wyrównane.
+
+## LEGEND_COLUMNS
+Liczba kolumn legendy panelu ceny, `3`. Więcej = niższa, ale szersza legenda (wtedy częściej ramka idzie nad nią).
+
+## _price_legend(axis)
+Tworzy legendę panelu ceny zakotwiczoną lewym dolnym rogiem w lewym górnym rogu panelu (nad nim). Zbiera wpisy wszystkiego, co narysowano z etykietą: Bollinger, SMA, prognoza, ZigZag, formacja cenowa. Zwraca legendę albo `None`.
+
+## _layout(figure, axis, legend)
+Mierzy legendę i ramkę (`_measure`), ustawia rozmiar obrazu (`FIGURE_WIDTH` × suma pasów) i marginesy paneli. Zwraca wysokość obrazu w calach — według niej `render` ustawia tytuł, rekomendację i ostrzeżenie o danych.
+
+## _measure(figure, artist)
+Szerokość i wysokość elementu wykresu w calach (przez renderer Agg); `(0, 0)` dla `None`.
+
+## FORMATION
+Kolor ZigZaga i linii formacji cenowej, `#111111` (prawie czarny).
+
+## _zigzag(axis, swings, count, close)
+Czarna łamana przez potwierdzone punkty swingów (`PatternReading.swings`) z kropkami na zwrotach (wpis legendy „ZigZag (swingi)”), a od ostatniego potwierdzonego swingu — linia kropkowana przez niepotwierdzony skrajny punkt do dzisiejszego zamknięcia. Punkty spoza rysowanego wycinka są pomijane.
+
+## _formation(axis, formation, count)
+Dwie czarne linie formacji cenowej (`PatternReading.formation`): górna przez szczyty, dolna przez dołki, od pierwszego swingu formacji do dzisiejszej świecy, z bardzo lekkim szarym wypełnieniem między nimi; wpis legendy „Formacja cenowa (KOD)”. Bez formacji (`None`) nic nie rysuje.
+
+## _stamp(stamp)
+Znacznik czasu świecy jako tekst: `RRRR-MM-DD`, na interwałach śróddziennych z godziną `RRRR-MM-DD GG:MM`. Używany przez oś X i napis przy linii history/forecast.
+
 ## Time axis
 
-Roughly ten evenly spaced candles are labelled with their real timestamps, formatted with the time included on intraday horizons and as a plain date otherwise.
+Roughly ten evenly spaced candles are labelled with their real timestamps, formatted with the time included on intraday horizons and as a plain date otherwise. Z prognozą ostatnia prawdziwa świeca zawsze dostaje własną, pogrubioną etykietę pod linią history/forecast, a zwykłe etykiety bliżej niż pół odstępu od niej są pomijane, żeby się nie nakładały.
 
 ## forecast
 
@@ -46,7 +95,7 @@ PriceForecast z bloku PriceForecaster albo `None`. Gdy jest, panel ceny ciągnie
 
 ## _today_line
 
-Pionowa kreskowana linia między ostatnią prawdziwą świecą a pierwszą prognozowaną, na wszystkich widocznych panelach (cena, wolumen, RSI, MACD), z podpisami „history” / „forecast”. Rysowana tylko wtedy, gdy jest prognoza.
+Pionowa kreskowana linia między ostatnią prawdziwą świecą a pierwszą prognozowaną, na wszystkich widocznych panelach (cena, wolumen, RSI, MACD), z podpisami „history” / „forecast” i pionowym napisem `ostatnia świeca: <data>` przy górze linii — znacznik czasu ostatniej świecy z danych (`window.index[-1]`), od którego liczona jest prognoza. Ta sama data jest pogrubioną etykietą osi X dokładnie pod linią (`_time_axis`). Rysowana tylko wtedy, gdy jest prognoza.
 
 ## Oś czasu z prognozą
 
@@ -94,7 +143,7 @@ Rysuje siatkę na jednym panelu: ustawia `AutoMinorLocator(GRID_MINOR_DIVISIONS)
 
 ## patterns
 
-`PatternReading` z bloku `PatternDetector` (przez `Report`) albo `None`. Argument konstruktora i `draw`, domyślnie `None` — wtedy wykres wygląda jak dawniej. Gdy jest, `_patterns` rysuje na panelu ceny okno formacji i każdą formację, a tytuł dostaje dopisek `| formacje BULL/BEAR/NEUTRAL/NONE`. Formacje nie zmieniają oceny (`rating`, `score`) pokazywanej na wykresie.
+`PatternReading` z bloku `PatternDetector` (przez `Report`) albo `None`. Argument konstruktora i `draw`, domyślnie `None` — wtedy wykres wygląda jak dawniej. Gdy jest, `_patterns` rysuje na panelu ceny okno formacji i każdą formację, a tytuł dostaje dopisek `| świece BULL/BEAR/NEUTRAL/NONE` (werdykt formacji świecowych) i — gdy jest formacja cenowa — `| formacja BULL/BEAR/NEUTRAL` (`ChartFormation.bias`). Formacje nie zmieniają oceny (`rating`, `score`) pokazywanej na wykresie.
 
 ## _patterns
 
@@ -102,11 +151,12 @@ Rysuje formacje świecowe:
 
 - **okno formacji** — jasnożółte tło (`PATTERN_WINDOW`) od początku automatycznie dobranego okna do dzisiejszej świecy, pomarańczowa kropkowana linia przez wszystkie widoczne panele i podpis „okno formacji: N świec” u dołu panelu ceny;
 - **każda formacja** — przerywana ramka obejmująca jej świece (od najniższego `low` do najwyższego `high`), zielona dla BULL, czerwona dla BEAR; znacznik ▲ pod ramką (BULL) albo ▼ nad nią (BEAR) i kod formacji (`ENG`, `MS`, `H`…). Formacja zanegowana przez następną świecę jest półprzezroczysta. Znaczniki bliskich formacji tego samego kierunku (< 4 świece) są rozsuwane na 3 poziomy, żeby się nie nakładały;
+- **struktura ceny** — czarny ZigZag (`_zigzag`) i czarne linie formacji cenowej (`_formation`);
 - formacja, której początek wypada przed rysowanym wycinkiem, jest pomijana (w praktyce nie występuje, bo okno jest przycinane do `chart_candles`).
 
 ## _pattern_box
 
-Ramka w prawym górnym rogu panelu ceny: werdykt formacji z `net`, długość okna z uzasadnieniem i `PATTERN_LIST` najnowszych formacji (▲/▼, kod, nazwa, ile świec temu, stan potwierdzenia); starsze są zliczone jako „... i N starszych”. Kolor obramowania z `BIAS_COLOUR`.
+Ramka **nad** panelem ceny, wyrównana do jego prawej krawędzi (w pasie nagłówka, więc nie zasłania świec ani prognozy): gdy jest formacja cenowa — pierwsza linia `Formacja cenowa: <BULL/BEAR/NEUTRAL> -- <nazwa>, <położenie ceny>`, potem werdykt formacji z `net`, długość okna z uzasadnieniem i `PATTERN_LIST` najnowszych formacji (▲/▼, kod, nazwa, ile świec temu, stan potwierdzenia); starsze są zliczone jako „... i N starszych”. Kolor obramowania z `BIAS_COLOUR`.
 
 ## BIAS_COLOUR
 
@@ -118,4 +168,4 @@ Kolor tła okna formacji (`#fff8e1`, rysowany z `alpha 0.6` pod świecami). Wpł
 
 ## PATTERN_LIST
 
-Ile najnowszych formacji wypisać w ramce, domyślnie `5`. Liczba całkowita ≥ 0; więcej = wyższa ramka, która może zasłonić świece. Pełna lista jest w karcie tickera i w `analysis.json`.
+Ile najnowszych formacji wypisać w ramce, domyślnie `5`. Liczba całkowita ≥ 0; więcej = wyższa ramka i wyższy pas nagłówka (cały PNG robi się wyższy, panele zachowują wysokość). Pełna lista jest w karcie tickera i w `analysis.json`.

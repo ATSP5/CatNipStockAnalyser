@@ -1,4 +1,4 @@
-Wykrywa formacje świecowe (22 rodzaje, 1-, 2- i 3-świecowe) w automatycznie dobranym oknie wstecz od dzisiejszej świecy, oznacza każdą jako **BULL** albo **BEAR** i składa je w werdykt `PatternReading`. Jest osobnym blokiem, bo rozpoznawanie formacji to odrębna odpowiedzialność od liczenia wskaźników (`Indicators`), punktowania (`TechnicalAnalysis`) i rysowania (`CandleChart`). Wejście `settings` ← `Settings` (potrzebne `chart_candles`), wyjście `pattern_detector` → wejście `PatternDetector` bloku `Report`. Wyjście zwraca cały obiekt, bo `Report` wywołuje `detect(verdict)` raz na ticker we własnej pętli, z werdyktem, który ma tylko on — wyniku nie da się policzyć z góry jedną metodą. Wynik idzie do `CandleChart.draw(patterns=…)`, karty tickera, JSON i CSV; **nie zmienia score ani rekomendacji**.
+Wykrywa formacje świecowe (22 rodzaje, 1-, 2- i 3-świecowe) w automatycznie dobranym oknie wstecz od dzisiejszej świecy, oznacza każdą jako **BULL** albo **BEAR** i składa je w werdykt `PatternReading`. Jest osobnym blokiem, bo rozpoznawanie formacji to odrębna odpowiedzialność od liczenia wskaźników (`Indicators`), punktowania (`TechnicalAnalysis`) i rysowania (`CandleChart`). Wejście `settings` ← `Settings` (potrzebne `chart_candles`), wyjście `pattern_detector` → wejście `PatternDetector` bloku `Report`. Wyjście zwraca cały obiekt, bo `Report` wywołuje `detect(verdict)` raz na ticker we własnej pętli, z werdyktem, który ma tylko on — wyniku nie da się policzyć z góry jedną metodą. Ten sam ZigZag opisuje też **strukturę ceny**: punkty swingów (`SwingPoint`) i **formację cenową** (`ChartFormation`) — dwie linie trendu dopasowane do ostatnich szczytów i dołków, które `CandleChart` rysuje na czarno. Wynik idzie do `CandleChart.draw(patterns=…)`, karty tickera, JSON i CSV; **nie zmienia score ani rekomendacji**.
 
 **Jak dobierane jest okno.** Formacja świecowa to sygnał krótkoterminowy — ma znaczenie, dopóki nie rozegrał się ruch, który zapowiadała. Dlatego okno nie ma stałej długości: ZigZag z progiem `swing_atr × ATR(14)` dzieli historię na swingi (ruchy od dołka do szczytu i z powrotem), a okno sięga do początku `swings` ostatnich zakończonych swingów (plus 3 świece rozbiegu), czyli obejmuje ostatni pełny zwrot i bieżący ruch. Spokojny, długo trendujący walor dostaje długie okno, rozedrgany — krótkie. Wynik jest ograniczany do `[min_window, max_window]`, do liczby rysowanych świec (`Settings.chart_candles`) i do dostępnej historii.
 
@@ -46,6 +46,37 @@ Minimalna zmiana zamknięcia (w ATR) w `trend_candles` świecach, żeby uznać t
 ## bias_threshold
 Próg `net()` dla werdyktu BULL/BEAR, domyślnie `0.2`. Zakres `[0, 1)` (inaczej `ValueError`). `0` = każda przewaga daje BULL/BEAR; większy = częściej NEUTRAL.
 
+## formation_swings
+Ile ostatnich zakończonych swingów (punktów ZigZag, w obrębie rysowanego wycinka) służy do dopasowania formacji cenowej, domyślnie `5`. Liczba całkowita `≥ 4` (inaczej `ValueError`) — potrzebne są co najmniej 2 szczyty i 2 dołki, gdy ich zabraknie, formacji nie ma (`None`). Więcej = dłuższa, „większa” formacja i linie mniej wrażliwe na jeden swing; mniej = formacja opisuje tylko ostatnie wahania.
+
+## flat_atr
+Tolerancja w ATR, domyślnie `1.0`, `> 0` (inaczej `ValueError`). Linia, której zmiana na całej długości formacji jest mniejsza niż `flat_atr × ATR`, jest „pozioma”; linie, których zmiany różnią się o mniej niż tyle, są „równoległe”. Większa wartość = częściej prostokąt i kanał, rzadziej trójkąty i kliny; mniejsza = odwrotnie.
+
+## Formacja cenowa
+Przez szczyty (`High`) i dołki (`Low`) z ostatnich `formation_swings` swingów prowadzone są dwie proste metodą najmniejszych kwadratów (przez 2 punkty = dokładnie przez nie), od pierwszego z tych swingów do dzisiejszej świecy. Nazwa wynika ze zmian obu linii w ATR:
+
+| Linie | Formacja | Kod | Kierunek |
+| --- | --- | --- | --- |
+| równoległe, poziome | Prostokąt (konsolidacja) | PROST | NEUTRAL |
+| równoległe, w górę / w dół | Kanał wzrostowy / spadkowy | KAN↑ / KAN↓ | BULL / BEAR |
+| zbieżne: górna pozioma, dolna rośnie | Trójkąt zwyżkujący | TR↑ | BULL |
+| zbieżne: górna spada, dolna pozioma | Trójkąt zniżkujący | TR↓ | BEAR |
+| zbieżne: górna spada, dolna rośnie | Trójkąt symetryczny | TR= | NEUTRAL |
+| zbieżne, obie w górę / obie w dół | Klin zwyżkujący / zniżkujący | KL↑ / KL↓ | BEAR / BULL |
+| rozbieżne, obie w tę samą stronę | Kanał wzrostowy / spadkowy | KAN↑ / KAN↓ | BULL / BEAR |
+| rozbieżne, w przeciwne strony | Formacja rozszerzająca się | ROZSZ | NEUTRAL |
+
+Werdykt formacji (`ChartFormation.bias`): wybicie górą → **BULL**, wybicie dołem → **BEAR**, w pozostałych przypadkach kierunek z tabeli. `position` mówi, gdzie jest dzisiejsze zamknięcie: `cena w formacji`, `wybicie górą`, `wybicie dołem` albo `linie przecięte (za wierzchołkiem)` (zbieżne linie minęły wierzchołek). Formacja cenowa jest informacją — **nie zmienia** `bias`, score ani rekomendacji.
+
+## _zigzag(high, low, atr)
+Zwraca `(pivots, pending)`: listę zakończonych swingów `(pozycja, "HIGH"/"LOW")` od najstarszego oraz skrajny punkt bieżącego, niezakończonego ruchu (albo `None`). Używają jej `choose_window`, `_swing_points` i `_formation`.
+
+## _swing_points(d, pivots, pending)
+Buduje listę `SwingPoint` (zakończone + na końcu niepotwierdzony `pending`), ograniczoną do rysowanego wycinka.
+
+## _formation(d, pivots)
+Dopasowuje linie formacji cenowej i zwraca `ChartFormation` albo `None`.
+
 ## catalogue
 Lista definicji formacji: `(nazwa, kod, kierunek, liczba świec, siła bazowa, wymagany trend −1/0/+1, test kształtu)`. Kolejność nie ma znaczenia dla wyniku.
 
@@ -68,10 +99,10 @@ Mnożnik siły, gdy wolumen świecy przekroczył średnią 20-sesyjną (`VOL_SMA
 Wyjście bloku: zwraca sam obiekt (patrz akapit wstępny — `Report` woła `detect` dla każdego tickera osobno).
 
 ## detect(verdict)
-Zwraca `PatternReading` dla `verdict.frame` (ramka OHLCV z kolumnami `Indicators`, w tym `ATR`) albo `None`, gdy ramki brak lub ma mniej niż `trend_candles + 4` świec. Kolejno: przygotowanie tablic, `choose_window`, skan katalogu, usunięcie nakładek, werdykt. Brak kolumny `ATR` jest uzupełniany własnym ATR(14).
+Zwraca `PatternReading` dla `verdict.frame` (ramka OHLCV z kolumnami `Indicators`, w tym `ATR`) albo `None`, gdy ramki brak lub ma mniej niż `trend_candles + 4` świec. Kolejno: przygotowanie tablic, ZigZag, formacja cenowa, `choose_window` (z formacją), skan katalogu, usunięcie nakładek, punkty swingów, werdykt. Brak kolumny `ATR` jest uzupełniany własnym ATR(14).
 
-## choose_window(d)
-Zwraca `(okno, uzasadnienie)` według reguły ze wstępu. Używana przez `detect`; publiczna, żeby można było sprawdzić okno bez szukania formacji.
+## choose_window(d, pivots, formation=None)
+`pivots` to wynik `_zigzag` (liczony raz w `detect`), `formation` — formacja cenowa liczona przed oknem. Gdy formacja jest, okno formacji świecowych jest **co najmniej tak długie jak formacja cenowa** (od jej pierwszego swingu do dziś) — nawet ponad `max_window`, ale nie dalej niż rysowany wycinek ani historia; uzasadnienie dostaje dopisek `, wydłużone do formacji cenowej (N)`. Dłuższe okno = więcej starszych formacji świecowych i dłuższy półokres wag. Zwraca `(okno, uzasadnienie)` według reguły ze wstępu. Używana przez `detect`; publiczna, żeby można było sprawdzić okno bez szukania formacji.
 
 ## Usuwanie nakładek
 Gdy dwie formacje tego samego kierunku dzielą świece (np. Bullish Harami w środku Three Inside Up, albo Tweezer Bottom i Bullish Engulfing na tych samych dwóch świecach), zostaje tylko silniejsza. Formacje przeciwnych kierunków na tych samych świecach zostają obie — ta sprzeczność jest informacją.

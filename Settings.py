@@ -83,7 +83,7 @@ class Settings:
 
     _TICKER_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.\-=^]{0,14}$")
 
-    def __init__(self, tickers=["AAPL", "MSFT", "NVDA", "KO", "PFE", "HOG", "ORCL", "IBM", "INTC", "AMD","FB2A","AMZN","BA","TSM","MU","SMSN","ASML","GOOGL","MU"], horizon='1d', lookback=None, argv=None, future_horizon=90):
+    def __init__(self, tickers=["AAPL", "ANT", "MSFT", "NVDA", "KO", "PFE", "HOG", "ORCL", "IBM", "INTC", "AMD","FB2A","AMZN","BA","TSM","MU","SSNLF","ASML","GOOGL","MU"], horizon='1d', lookback=None, argv=None, future_horizon=90):
         self.tickers = self._clean(tickers) if tickers else list(self.TICKERS)
         self.horizon = (horizon or self.HORIZON).lower()
         self.lookback = self.LOOKBACK if lookback is None else lookback

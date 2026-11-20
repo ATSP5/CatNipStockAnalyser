@@ -187,10 +187,12 @@ Wartość uznaje się za niemożliwą, gdy free float przekracza liczbę akcji, 
 - **Kontekst trendu.** Formacje odwrócenia liczą się tylko po pasującym trendzie (bycze po spadku ≥ 1 ATR w 6 świecach, niedźwiedzie po wzroście).
 - **Siła i potwierdzenie.** Każda formacja ma bazową wiarygodność (0,40–0,75), × 1,25 gdy następna świeca ją potwierdziła, × 0,5 gdy zanegowała, × 1,15 przy wolumenie powyżej średniej.
 - **Werdykt.** Siły ważone świeżością (półokres = ¼ okna) dają `net` od −1 do +1: > 0,2 → **BULL**, < −0,2 → **BEAR**, pomiędzy → **NEUTRAL**, brak formacji → **NONE**.
-- **Na wykresie:** żółte tło okna, ramki wokół świec formacji, ▲ zielone (BULL) pod / ▼ czerwone (BEAR) nad świecami z kodem formacji, ramka z werdyktem i listą najnowszych formacji, werdykt w tytule.
-- **W raporcie:** kolumna `CANDLES` w tabeli, sekcja „Formacje świecowe” w karcie tickera, `candle_patterns` w JSON, kolumny `pattern_*` w CSV.
+- **Formacja cenowa.** Przez szczyty i dołki 5 ostatnich swingów ZigZag prowadzone są dwie linie trendu; z ich nachylenia (w ATR) wynika nazwa: kanał wzrostowy/spadkowy, prostokąt, trójkąt zwyżkujący/zniżkujący/symetryczny, klin zwyżkujący/zniżkujący albo formacja rozszerzająca się, oraz położenie ceny (w formacji / wybicie górą / wybicie dołem). Formacja daje własny werdykt **BULL/BEAR/NEUTRAL** — wybicie górą BULL, wybicie dołem BEAR, w formacji jej kierunek (np. kanał wzrostowy BULL, klin zwyżkujący BEAR). Tylko informacyjnie — nie zmienia score ani rekomendacji. Okno formacji świecowych jest zawsze co najmniej tak długie jak formacja cenowa.
+- **Na wykresie:** żółte tło okna, ramki wokół świec formacji, ▲ zielone (BULL) pod / ▼ czerwone (BEAR) nad świecami z kodem formacji, czarny ZigZag przez swingi (kropkowany od ostatniego swingu do dziś) i czarne linie formacji cenowej, werdykt w tytule. Legenda i ramka z werdyktem i listą najnowszych formacji stoją **nad** panelem ceny, więc nie zasłaniają świec.
+- **Granica history/forecast:** na przerywanej linii data ostatniej świecy z danych (napis przy linii i pogrubiona etykieta osi X).
+- **W raporcie:** kolumny `CANDLES` (świece) i `FORMATION` (formacja cenowa) w tabeli, sekcja „Formacje świecowe” w karcie tickera, `candle_patterns` w JSON, kolumny `pattern_*` w CSV.
 
-Parametry (`min_window`, `max_window`, `swing_atr`, `swings`, `trend_candles`, `trend_atr`, `bias_threshold`) są argumentami konstruktora `PatternDetector` — opis i zakresy na jego stronie dokumentacji. Siły bazowe formacji pochodzą z literatury i nie były testowane historycznie w tym projekcie.
+Parametry (`min_window`, `max_window`, `swing_atr`, `swings`, `trend_candles`, `trend_atr`, `bias_threshold`, `formation_swings`, `flat_atr`) są argumentami konstruktora `PatternDetector` — opis i zakresy na jego stronie dokumentacji. Siły bazowe formacji pochodzą z literatury i nie były testowane historycznie w tym projekcie.
 
 ## Wymagania
 
@@ -277,7 +279,7 @@ Score, TechnicalAnalysis ──> Backtest
 Settings ──> PriceForecaster
 Settings ──> PatternDetector
 Settings, MarketData, Recommendation, CandleChart, Backtest, PriceForecaster, PatternDetector ──> Report (main)
-PriceForecast, CandlePattern, PatternReading — rekordy danych (dataclass), bez połączeń
+PriceForecast, CandlePattern, PatternReading, SwingPoint, ChartFormation — rekordy danych (dataclass), bez połączeń
 
 Settings ──> ScreenerSettings ──> SectorUniverse, UniverseFetcher, FactorModel, ThemeRanker, ScreenerChart
 MarketData ──> UniverseFetcher;  Recommendation, PriceForecaster ──> FactorModel
@@ -300,7 +302,9 @@ StockCandidate, RankedPick — rekordy danych skanera, bez połączeń
 | `PriceForecast` | rekord danych z prognozą jednego tickera (mediana, pasma, `change_pct`) |
 | `PatternDetector` | wykrywa formacje świecowe w automatycznie dobranym oknie i wydaje werdykt BULL/BEAR |
 | `CandlePattern` | rekord danych jednej formacji (nazwa, kierunek, położenie, siła, potwierdzenie) |
-| `PatternReading` | rekord danych z wynikiem: okno, lista formacji, werdykt BULL/BEAR/NEUTRAL/NONE |
+| `PatternReading` | rekord danych z wynikiem: okno, lista formacji, werdykt BULL/BEAR/NEUTRAL/NONE, swingi i formacja cenowa |
+| `SwingPoint` | rekord danych jednego punktu zwrotnego ZigZag (szczyt/dołek) |
+| `ChartFormation` | rekord danych formacji cenowej: nazwa, kierunek, dwie linie trendu, położenie ceny |
 | `CandleChart` | rysuje czteropanelowy wykres PNG z formacjami świecowymi (z „! Możliwe błędne dane”, gdy trzeba; pusty wykres dla NO DATA) |
 | `Report` | blok główny: uruchamia potok, drukuje raport, zapisuje JSON/CSV |
 | `ScreenerSettings` | tematy i kandydaci skanera, filtry, wagi czynników, horyzont prognozy; kopia `Settings` dla skanu |

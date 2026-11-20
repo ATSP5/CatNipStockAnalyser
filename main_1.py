@@ -159,6 +159,12 @@ class Report:
         reading = self.patterns.get(verdict.ticker)
         return "n/a" if reading is None else reading.bias
 
+    def _formation_cell(self, verdict):
+        reading = self.patterns.get(verdict.ticker)
+        if reading is None:
+            return "n/a"
+        return "-" if reading.formation is None else reading.formation.bias
+
     # -- rendering ---------------------------------------------------------
 
     def print_summary(self):
@@ -167,14 +173,14 @@ class Report:
             self._print_skipped()
             return
 
-        header = ("%-3s %-8s %-11s %8s %6s %8s %9s %8s %8s"
+        header = ("%-3s %-8s %-11s %8s %6s %8s %9s %8s %8s %9s"
                   % ("", "TICKER", "CALL", "SCORE", "DATA", "TECH", "VALUATION",
-                     "SUPPLY", "CANDLES"))
+                     "SUPPLY", "CANDLES", "FORMATION"))
         self._say(header)
         self._say("-" * len(header))
 
         for verdict in self.verdicts:
-            self._say("%-3s %-8s %-11s %8s %5.0f%% %8s %9s %8s %8s" % (
+            self._say("%-3s %-8s %-11s %8s %5.0f%% %8s %9s %8s %8s %9s" % (
                 self.RATING_MARK.get(verdict.rating, "")
                 + (self.SUSPECT_MARK if verdict.market.has_suspect_data() else ""),
                 verdict.ticker,
@@ -185,6 +191,7 @@ class Report:
                 self._cell(verdict.block_score("valuation")),
                 self._cell(verdict.block_score("supply")),
                 self._pattern_cell(verdict),
+                self._formation_cell(verdict),
             ))
         self._say("-" * len(header))
         self._say(self.forecast_status())
@@ -299,6 +306,8 @@ class Report:
             return
         self._say("")
         self._say("  Formacje świecowe: %s" % reading.summary())
+        if reading.formation is not None:
+            self._say("  Formacja cenowa: %s" % reading.formation.summary())
         for pattern in reading.patterns[:8]:
             self._say("    %-4s %-21s %-4s %2d świec temu (%s)  siła %.2f, %s" % (
                 pattern.code, pattern.name, pattern.direction, pattern.bars_ago,
@@ -425,6 +434,7 @@ class Report:
             "forecast_high", "forecast_inner_low", "forecast_inner_high",
             "forecast_change_pct", "pattern_bias", "pattern_net",
             "pattern_window", "pattern_bull", "pattern_bear", "pattern_latest",
+            "formation_bias", "formation_name", "formation_position",
             "data_warnings", "data_fixes",
         ])
         for verdict in self.verdicts:
@@ -435,6 +445,7 @@ class Report:
             ahead = forecast.to_dict() if forecast is not None else {}
             reading = self.patterns.get(verdict.ticker)
             latest = reading.patterns[0] if reading and reading.patterns else None
+            formation = reading.formation if reading else None
             writer.writerow([
                 verdict.ticker,
                 verdict.market.name(),
@@ -467,6 +478,9 @@ class Report:
                 reading.count("BEAR") if reading else None,
                 "%s (%s, %d)" % (latest.name, latest.direction, latest.bars_ago)
                 if latest else None,
+                formation.bias if formation else None,
+                formation.name if formation else None,
+                formation.position if formation else None,
                 " | ".join(verdict.market.data_warnings),
                 " | ".join(verdict.market.data_fixes),
             ])

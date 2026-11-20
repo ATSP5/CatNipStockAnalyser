@@ -14,6 +14,11 @@ is BULL or BEAR; its strength is a base reliability, raised when the next
 candle confirmed it or volume was above average, cut when the next candle went
 the other way. The reading weights every pattern by recency and says BULL,
 BEAR or NEUTRAL.
+
+The same ZigZag also describes the price structure: its swing points (drawn
+on the chart as a black zigzag) and a price formation -- two trend lines fitted
+through the last `formation_swings` swing highs and lows, named channel,
+rectangle, triangle, wedge or broadening formation from their slopes.
 """
 
 from types import SimpleNamespace
@@ -22,7 +27,9 @@ import numpy as np
 import pandas as pd
 
 from CandlePattern import CandlePattern
+from ChartFormation import ChartFormation
 from PatternReading import PatternReading
+from SwingPoint import SwingPoint
 
 
 class PatternDetector:
@@ -35,6 +42,8 @@ class PatternDetector:
     TREND_CANDLES = 6
     TREND_ATR = 1.0
     BIAS_THRESHOLD = 0.2
+    FORMATION_SWINGS = 5
+    FLAT_ATR = 1.0
 
     PIVOT_LEAD = 3            # candles kept before the oldest pivot (lead-in)
     BODY_AVERAGE = 10         # candles in the average body ("long" / "small")
@@ -45,7 +54,8 @@ class PatternDetector:
     def __init__(self, settings, min_window=MIN_WINDOW, max_window=MAX_WINDOW,
                  swing_atr=SWING_ATR, swings=SWINGS,
                  trend_candles=TREND_CANDLES, trend_atr=TREND_ATR,
-                 bias_threshold=BIAS_THRESHOLD):
+                 bias_threshold=BIAS_THRESHOLD,
+                 formation_swings=FORMATION_SWINGS, flat_atr=FLAT_ATR):
         if min_window < 5:
             raise ValueError("min_window must be at least 5 candles")
         if max_window < min_window:
@@ -58,6 +68,10 @@ class PatternDetector:
             raise ValueError("trend_candles must be at least 2")
         if not 0.0 <= bias_threshold < 1.0:
             raise ValueError("bias_threshold must be in [0, 1)")
+        if formation_swings < 4:
+            raise ValueError("formation_swings must be at least 4 (2 highs + 2 lows)")
+        if flat_atr <= 0:
+            raise ValueError("flat_atr must be positive")
         self.settings = settings
         self.min_window = int(min_window)
         self.max_window = int(max_window)
@@ -66,6 +80,8 @@ class PatternDetector:
         self.trend_candles = int(trend_candles)
         self.trend_atr = float(trend_atr)
         self.bias_threshold = float(bias_threshold)
+        self.formation_swings = int(formation_swings)
+        self.flat_atr = float(flat_atr)
 
         # name, chart code, direction, candles, base strength, required trend
         # (-1 down, +1 up, 0 none), shape test(d, i) on the newest candle i.
@@ -107,18 +123,25 @@ class PatternDetector:
         if frame is None or len(frame) < self.trend_candles + 4:
             return None
         d = self._arrays(frame)
-        window, reason = self.choose_window(d)
+        pivots, pending = self._zigzag(d.high, d.low, d.atr)
+        formation = self._formation(d, pivots)
+        window, reason = self.choose_window(d, pivots, formation)
         found = self._scan(d, window)
-        return self._read(self._deduplicate(found), window, reason)
+        return self._read(self._deduplicate(found), window, reason,
+                          self._swing_points(d, pivots, pending), formation)
 
-    def choose_window(self, d) -> "tuple[int, str]":
-        """How many candles back from today to search, and why."""
+    def choose_window(self, d, pivots, formation=None) -> "tuple[int, str]":
+        """How many candles back from today to search, and why.
+
+        With a price formation the window is at least as long as the formation,
+        so every candle pattern inside it is read -- even above max_window,
+        but never past the charted candles or the available history.
+        """
         count = len(d.close)
-        chart = max(20, int(getattr(self.settings, "chart_candles", self.max_window)))
-        upper = min(self.max_window, chart, count - self.trend_candles - 1)
-        pivots = self._zigzag(d.high, d.low, d.atr)
+        upper = min(self.max_window, self._chart_candles(),
+                    count - self.trend_candles - 1)
         if len(pivots) >= self.swings:
-            start = max(0, pivots[-self.swings] - self.PIVOT_LEAD)
+            start = max(0, pivots[-self.swings][0] - self.PIVOT_LEAD)
             window = count - start
             reason = "ostatnie swingi: %d (ZigZag %.1f×ATR)" % (
                 self.swings, self.swing_atr)
@@ -131,6 +154,12 @@ class PatternDetector:
         if window > upper:
             window = upper
             reason += ", przycięte do %d" % upper
+        if formation is not None:
+            span = min(formation.start_bars_ago + 1, self._chart_candles(),
+                       count - self.trend_candles - 1)
+            if span > window:
+                window = span
+                reason += ", wydłużone do formacji cenowej (%d)" % span
         return max(1, window), reason
 
     # -- data --------------------------------------------------------------
@@ -169,8 +198,13 @@ class PatternDetector:
             volume_average=volume_average, index=list(frame.index),
         )
 
+    def _chart_candles(self) -> int:
+        """Candles the chart shows -- swings and formations older are not drawn."""
+        return max(20, int(getattr(self.settings, "chart_candles", self.max_window)))
+
     def _zigzag(self, high, low, atr):
-        """Positions of confirmed swing highs and lows, oldest first."""
+        """Confirmed swings as (position, "HIGH"/"LOW"), oldest first, plus the
+        extreme the price is still moving into (or None)."""
         pivots, direction, top, bottom = [], 0, 0, 0
         for i in range(1, len(high)):
             threshold = self.swing_atr * atr[i]
@@ -181,24 +215,112 @@ class PatternDetector:
                     bottom = i
                 if high[top] - low[bottom] >= threshold:
                     if top > bottom:
-                        pivots.append(bottom)
+                        pivots.append((bottom, "LOW"))
                         direction = 1
                     else:
-                        pivots.append(top)
+                        pivots.append((top, "HIGH"))
                         direction = -1
             elif direction == 1:
                 if high[i] >= high[top]:
                     top = i
                 elif high[top] - low[i] >= threshold:
-                    pivots.append(top)
+                    pivots.append((top, "HIGH"))
                     direction, bottom = -1, i
             else:
                 if low[i] <= low[bottom]:
                     bottom = i
                 elif high[i] - low[bottom] >= threshold:
-                    pivots.append(bottom)
+                    pivots.append((bottom, "LOW"))
                     direction, top = 1, i
-        return pivots
+        pending = {1: (top, "HIGH"), -1: (bottom, "LOW")}.get(direction)
+        return pivots, pending
+
+    # -- price structure ---------------------------------------------------
+
+    def _swing_points(self, d, pivots, pending):
+        """ZigZag points inside the charted candles; the open extreme last."""
+        count = len(d.close)
+        points = [self._swing(d, position, kind, True) for position, kind in pivots]
+        if pending is not None and (not pivots or pending[0] > pivots[-1][0]):
+            points.append(self._swing(d, pending[0], pending[1], False))
+        visible = self._chart_candles()
+        return [point for point in points if point.bars_ago < visible]
+
+    @staticmethod
+    def _swing(d, position, kind, confirmed):
+        price = d.high[position] if kind == "HIGH" else d.low[position]
+        return SwingPoint(bars_ago=len(d.close) - 1 - position, price=float(price),
+                          kind=kind, confirmed=confirmed)
+
+    def _formation(self, d, pivots):
+        """Trend lines through the last swing highs and lows, or None."""
+        count = len(d.close)
+        visible = self._chart_candles()
+        recent = [(p, k) for p, k in pivots if count - 1 - p < visible]
+        recent = recent[-self.formation_swings:]
+        highs = [p for p, k in recent if k == "HIGH"]
+        lows = [p for p, k in recent if k == "LOW"]
+        if len(highs) < 2 or len(lows) < 2:
+            return None
+        start, end = recent[0][0], count - 1
+        upper = np.polyfit(highs, d.high[highs], 1)
+        lower = np.polyfit(lows, d.low[lows], 1)
+        length = max(1, end - start)
+        atr = float(d.atr[end])
+        name, code, direction = self._classify(upper[0] * length / atr,
+                                               lower[0] * length / atr)
+        upper_end = float(np.polyval(upper, end))
+        lower_end = float(np.polyval(lower, end))
+        return ChartFormation(
+            name=name, code=code, direction=direction,
+            start_bars_ago=end - start,
+            upper_start=float(np.polyval(upper, start)), upper_end=upper_end,
+            lower_start=float(np.polyval(lower, start)), lower_end=lower_end,
+            swings=len(recent),
+            position=self._position(float(d.close[end]), upper_end, lower_end),
+        )
+
+    def _classify(self, upper_move, lower_move):
+        """Name, code and direction from both lines' moves (in ATR) over the formation."""
+        flat = self.flat_atr
+
+        def trend(move):
+            return 0 if abs(move) < flat else (1 if move > 0 else -1)
+
+        top, bottom = trend(upper_move), trend(lower_move)
+        spread = upper_move - lower_move        # > 0 widening, < 0 narrowing
+        if abs(spread) < flat:
+            middle = trend((upper_move + lower_move) / 2.0)
+            if middle == 0:
+                return "Prostokąt (konsolidacja)", "PROST", "NEUTRAL"
+            if middle > 0:
+                return "Kanał wzrostowy", "KAN↑", "BULL"
+            return "Kanał spadkowy", "KAN↓", "BEAR"
+        if spread < 0:
+            if top == 0 and bottom > 0:
+                return "Trójkąt zwyżkujący", "TR↑", "BULL"
+            if top < 0 and bottom == 0:
+                return "Trójkąt zniżkujący", "TR↓", "BEAR"
+            if top > 0 and bottom > 0:
+                return "Klin zwyżkujący", "KL↑", "BEAR"
+            if top < 0 and bottom < 0:
+                return "Klin zniżkujący", "KL↓", "BULL"
+            return "Trójkąt symetryczny", "TR=", "NEUTRAL"
+        if top > 0 and bottom > 0:
+            return "Kanał wzrostowy", "KAN↑", "BULL"
+        if top < 0 and bottom < 0:
+            return "Kanał spadkowy", "KAN↓", "BEAR"
+        return "Formacja rozszerzająca się", "ROZSZ", "NEUTRAL"
+
+    @staticmethod
+    def _position(close, upper, lower):
+        if upper < lower:
+            return ChartFormation.PAST_APEX
+        if close > upper:
+            return ChartFormation.BREAKOUT_UP
+        if close < lower:
+            return ChartFormation.BREAKOUT_DOWN
+        return ChartFormation.INSIDE
 
     # -- scanning ----------------------------------------------------------
 
@@ -261,7 +383,7 @@ class PatternDetector:
             kept.append(pattern)
         return sorted(kept, key=lambda p: p.bars_ago)
 
-    def _read(self, patterns, window, reason):
+    def _read(self, patterns, window, reason, swings, formation):
         half_life = max(3.0, window / 4.0)
         bull = sum(p.strength * 0.5 ** (p.bars_ago / half_life)
                    for p in patterns if p.bullish)
@@ -279,7 +401,8 @@ class PatternDetector:
                 bias = "NEUTRAL"
         return PatternReading(window=window, window_reason=reason,
                               patterns=patterns, bull_score=bull,
-                              bear_score=bear, bias=bias)
+                              bear_score=bear, bias=bias, swings=swings,
+                              formation=formation)
 
     # -- candle shapes -----------------------------------------------------
 

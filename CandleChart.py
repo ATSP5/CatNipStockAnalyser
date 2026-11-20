@@ -23,6 +23,7 @@ matplotlib.use("Agg")               # write files; never try to open a window
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from matplotlib.ticker import AutoMinorLocator
+from matplotlib.transforms import offset_copy
 
 
 class CandleChart:
@@ -54,6 +55,19 @@ class CandleChart:
     BIAS_COLOUR = {"BULL": UP, "BEAR": DOWN, "NEUTRAL": "#c9a227", "NONE": MUTED}
     PATTERN_WINDOW = "#fff8e1"
     PATTERN_LIST = 5             # newest patterns listed in the chart's box
+    FORMATION = "#111111"        # zigzag and formation lines
+
+    # Figure layout in inches. The panels keep their height; the header band
+    # between the title and the price panel grows to fit the legend and the
+    # pattern box, so neither covers the candles.
+    FIGURE_WIDTH = 13.0
+    PLOT_HEIGHT = 8.4
+    BOTTOM_BAND = 0.8
+    TITLE_BAND = 0.85
+    HEADER_GAP = 0.06            # space between the header items and the panel
+    BOX_PAD = 0.12               # pattern box frame + offset around its text
+    LEFT, RIGHT = 0.07, 0.94     # panel edges, figure fraction
+    LEGEND_COLUMNS = 3
 
     def __init__(self, verdict, settings, forecast=None, note=None,
                  patterns=None):
@@ -64,6 +78,7 @@ class CandleChart:
         self.patterns = patterns
         self.market = verdict.market
         self.path = None
+        self._box = None             # the pattern box, sized by _layout
 
     # -- entry point -------------------------------------------------------
 
@@ -88,11 +103,9 @@ class CandleChart:
         positions = range(len(window))
 
         figure, axes = plt.subplots(
-            4, 1, figsize=(13, 10), sharex=True,
+            4, 1, figsize=(self.FIGURE_WIDTH, 10), sharex=True,
             gridspec_kw={"height_ratios": [3.2, 0.9, 1.0, 1.0]},
         )
-        figure.subplots_adjust(hspace=0.08, left=0.07, right=0.94,
-                               top=0.92, bottom=0.08)
 
         self._price_panel(axes[0], window, positions)
         self._volume_panel(axes[1], window, positions)
@@ -109,14 +122,59 @@ class CandleChart:
             for side in ("top", "right"):
                 axis.spines[side].set_visible(False)
 
+        height = self._layout(figure, axes[0], self._price_legend(axes[0]))
         figure.suptitle(self._title(), fontsize=13, fontweight="bold",
-                        color=self.INK, x=0.07, ha="left")
-        figure.text(0.94, 0.955, self.verdict.rating, ha="right", fontsize=14,
-                    fontweight="bold",
+                        color=self.INK, x=0.07, ha="left", va="top",
+                        y=1 - 0.12 / height)
+        figure.text(0.94, 1 - 0.34 / height, self.verdict.rating, ha="right",
+                    va="top", fontsize=14, fontweight="bold",
                     color=self.RATING_COLOUR.get(self.verdict.rating, self.INK))
-        self._suspect_mark(figure)
+        self._suspect_mark(figure, 1 - 0.60 / height)
 
         return self._save(figure)
+
+    def _price_legend(self, axis):
+        """Legend of the price panel, placed above the panel (or None)."""
+        handles, labels = axis.get_legend_handles_labels()
+        if not handles:
+            return None
+        return axis.legend(handles, labels, loc="lower left",
+                           bbox_to_anchor=(0.0, 1.0), borderaxespad=0.3,
+                           fontsize=8, framealpha=0.85, ncol=self.LEGEND_COLUMNS)
+
+    def _layout(self, figure, axis, legend):
+        """Size the figure so the header band fits the legend and the pattern box.
+
+        Both are measured. Side by side when they fit across the panel,
+        otherwise the box goes above the legend. Returns the height in inches.
+        """
+        legend_w, legend_h = self._measure(figure, legend)
+        box_w, box_h = self._measure(figure, self._box)
+        if self._box is not None:
+            box_w, box_h = box_w + self.BOX_PAD, box_h + self.BOX_PAD
+        width = self.FIGURE_WIDTH * (self.RIGHT - self.LEFT)
+        if legend is not None and self._box is not None \
+                and legend_w + box_w + self.HEADER_GAP > width:
+            lift = legend_h + 2 * self.HEADER_GAP
+            self._box.set_transform(offset_copy(
+                axis.transAxes, fig=figure, y=72 * lift + 3, units="points"))
+            header = lift + box_h
+        else:
+            header = max(legend_h, box_h) + self.HEADER_GAP
+        height = self.BOTTOM_BAND + self.PLOT_HEIGHT + header + self.TITLE_BAND
+        figure.set_size_inches(self.FIGURE_WIDTH, height)
+        figure.subplots_adjust(hspace=0.08, left=self.LEFT, right=self.RIGHT,
+                               bottom=self.BOTTOM_BAND / height,
+                               top=1 - (self.TITLE_BAND + header) / height)
+        return height
+
+    @staticmethod
+    def _measure(figure, artist):
+        """Width and height of an artist in inches; (0, 0) for None."""
+        if artist is None:
+            return 0.0, 0.0
+        extent = artist.get_window_extent(figure.canvas.get_renderer())
+        return extent.width / figure.dpi, extent.height / figure.dpi
 
     def _grid(self, axis):
         """Major grid at the labelled ticks plus a finer dotted minor grid."""
@@ -140,13 +198,13 @@ class CandleChart:
         figure.text(0.94, 0.92, self.verdict.rating, ha="right", fontsize=14,
                     fontweight="bold",
                     color=self.RATING_COLOUR.get(self.verdict.rating, self.INK))
-        self._suspect_mark(figure)
+        self._suspect_mark(figure, 0.925)
         return self._save(figure)
 
-    def _suspect_mark(self, figure):
+    def _suspect_mark(self, figure, y):
         """Red warning under the rating when Yahoo data had to be dropped."""
         if self.market.has_suspect_data():
-            figure.text(0.94, 0.925, self.SUSPECT_TEXT, ha="right", va="top",
+            figure.text(0.94, y, self.SUSPECT_TEXT, ha="right", va="top",
                         fontsize=10, fontweight="bold", color=self.DOWN)
 
     def _save(self, figure):
@@ -203,7 +261,6 @@ class CandleChart:
                           linewidth=1.2, label=label, zorder=4)
 
         axis.set_ylabel("Price (%s)" % self.market.currency(), fontsize=9)
-        axis.legend(loc="upper left", fontsize=8, framealpha=0.85, ncol=4)
 
     def _volume_panel(self, axis, window, positions):
         if "Volume" not in window:
@@ -275,7 +332,6 @@ class CandleChart:
                     100 * in_lo, 100 * in_hi, 50 * (in_hi - in_lo)))
         axis.plot(x, median, color=self.FORECAST, linewidth=1.6, zorder=5,
                   label="Forecast median (%s)" % self.forecast.model.split("/")[-1])
-        axis.legend(loc="upper left", fontsize=8, framealpha=0.85, ncol=3)
 
     def _patterns(self, axes, window):
         """Pattern window, each formation boxed and marked, and the verdict box."""
@@ -295,7 +351,10 @@ class CandleChart:
                   transform=axis.get_xaxis_transform(), ha="left", va="bottom",
                   fontsize=7.5, color="#f57f17", zorder=7)
 
-        span = float(window["High"].max() - window["Low"].min()) or 1.0
+        self._formation(axis, reading.formation, count)
+        self._zigzag(axis, reading.swings, count, float(window["Close"].iloc[-1]))
+
+        span =float(window["High"].max() - window["Low"].min()) or 1.0
         unit = 0.025 * span
         last_x = {"BULL": None, "BEAR": None}
         level = {"BULL": 0, "BEAR": 0}
@@ -330,9 +389,44 @@ class CandleChart:
                       zorder=8)
         self._pattern_box(axis, reading)
 
+    def _zigzag(self, axis, swings, count, close):
+        """Black zigzag through the swing points; dotted from the last one to today."""
+        points = [(count - 1 - s.bars_ago, s.price, s.confirmed)
+                  for s in swings if s.bars_ago < count]
+        solid = [(x, y) for x, y, confirmed in points if confirmed]
+        if len(solid) >= 2:
+            axis.plot([x for x, _ in solid], [y for _, y in solid],
+                      color=self.FORMATION, linewidth=1.0, zorder=5,
+                      label="ZigZag (swingi)")
+            axis.scatter([x for x, _ in solid], [y for _, y in solid], s=9,
+                         color=self.FORMATION, zorder=6)
+        tail = solid[-1:] + [(x, y) for x, y, confirmed in points if not confirmed]
+        if tail and tail[-1][0] < count - 1:
+            tail.append((count - 1, close))
+        if len(tail) >= 2:
+            axis.plot([x for x, _ in tail], [y for _, y in tail],
+                      color=self.FORMATION, linewidth=1.0, linestyle=":", zorder=5)
+
+    def _formation(self, axis, formation, count):
+        """Upper and lower line of the price formation, lightly filled between."""
+        if formation is None or formation.start_bars_ago >= count:
+            return
+        xs = [count - 1 - formation.start_bars_ago, count - 1]
+        upper = [formation.upper_start, formation.upper_end]
+        lower = [formation.lower_start, formation.lower_end]
+        axis.fill_between(xs, lower, upper, color=self.FORMATION, alpha=0.05,
+                          linewidth=0, zorder=1)
+        axis.plot(xs, upper, color=self.FORMATION, linewidth=1.4, zorder=5,
+                  label="Formacja cenowa (%s)" % formation.code)
+        axis.plot(xs, lower, color=self.FORMATION, linewidth=1.4, zorder=5)
+
     def _pattern_box(self, axis, reading):
         lines = ["Formacje świecowe: %s (net %+.2f)" % (reading.bias, reading.net()),
                  "okno %d świec -- %s" % (reading.window, reading.window_reason)]
+        if reading.formation is not None:
+            formation = reading.formation
+            lines.insert(0, "Formacja cenowa: %s -- %s, %s" % (
+                formation.bias, formation.name, formation.position))
         for pattern in reading.patterns[:self.PATTERN_LIST]:
             lines.append("%s %-4s %s, %d św. temu, %s" % (
                 "▲" if pattern.bullish else "▼", pattern.code, pattern.name,
@@ -343,8 +437,12 @@ class CandleChart:
         if not reading.patterns:
             lines.append("brak formacji w oknie")
         colour = self.BIAS_COLOUR.get(reading.bias, self.INK)
-        axis.text(0.99, 0.97, "\n".join(lines), transform=axis.transAxes,
-                  ha="right", va="top", multialignment="left", fontsize=7,
+        # Above the price panel, in the header band, so it never covers candles.
+        self._box = axis.text(
+                  1.0, 1.0, "\n".join(lines),
+                  transform=offset_copy(axis.transAxes, fig=axis.figure, y=3,
+                                        units="points"),
+                  ha="right", va="bottom", multialignment="left", fontsize=7,
                   color=self.INK, zorder=9,
                   bbox={"facecolor": "white", "edgecolor": colour, "alpha": 0.88,
                         "boxstyle": "round,pad=0.35", "linewidth": 1.4})
@@ -369,6 +467,13 @@ class CandleChart:
         top = axes[0]
         top.text(boundary - 0.6, 0.02, "history", transform=top.get_xaxis_transform(),
                  ha="right", va="bottom", fontsize=8, color=self.MUTED)
+        # Timestamp of the last real candle -- where the history ends and
+        # the forecast starts counting from.
+        top.text(boundary - 0.25, 0.98, "ostatnia świeca: %s" % self._stamp(window.index[-1]),
+                 transform=top.get_xaxis_transform(), rotation=90, ha="right",
+                 va="top", fontsize=7.5, color=self.INK, zorder=9,
+                 bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.8,
+                       "boxstyle": "round,pad=0.15"})
         top.text(boundary + 0.6, 0.02, "forecast", transform=top.get_xaxis_transform(),
                  ha="left", va="bottom", fontsize=8, color=self.FORECAST)
 
@@ -385,17 +490,27 @@ class CandleChart:
         count = len(stamps)
         step = max(1, count // 10)
         ticks = list(range(0, count, step))
-        fmt = "%Y-%m-%d %H:%M" if self.settings.is_intraday() else "%Y-%m-%d"
-        labels = []
-        for position in ticks:
-            stamp = stamps[position]
-            try:
-                labels.append(stamp.strftime(fmt))
-            except AttributeError:
-                labels.append(str(stamp)[:16])
+        last = len(window) - 1
+        if self.forecast is not None:
+            # The last real candle always gets its date, right under the
+            # history / forecast line; regular ticks too close to it go.
+            ticks = sorted([t for t in ticks if abs(t - last) >= step / 2] + [last])
+        labels = [self._stamp(stamps[position]) for position in ticks]
         axis.set_xticks(ticks)
         axis.set_xticklabels(labels, rotation=45, ha="right", fontsize=8)
+        if self.forecast is not None:
+            boundary = axis.get_xticklabels()[ticks.index(last)]
+            boundary.set_fontweight("bold")
+            boundary.set_color(self.INK)
         axis.set_xlim(-1, count)
+
+    def _stamp(self, stamp):
+        """A candle's timestamp as text: date, plus the time on intraday horizons."""
+        fmt = "%Y-%m-%d %H:%M" if self.settings.is_intraday() else "%Y-%m-%d"
+        try:
+            return stamp.strftime(fmt)
+        except AttributeError:
+            return str(stamp)[:16]
 
     def _title(self):
         title = "%s  --  %s candles  |  %s  |  score %+.1f" % (
@@ -408,7 +523,9 @@ class CandleChart:
             title += "  |  forecast %d candles: %+.1f%%" % (
                 self.forecast.steps, self.forecast.change_pct())
         if self.patterns is not None:
-            title += "  |  formacje %s" % self.patterns.bias
+            title += "  |  świece %s" % self.patterns.bias
+            if self.patterns.formation is not None:
+                title += "  |  formacja %s" % self.patterns.formation.bias
         return title
 
     def _destination(self):

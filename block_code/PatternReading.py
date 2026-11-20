@@ -1,9 +1,11 @@
 """What the candlestick patterns of one ticker add up to."""
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 from CandlePattern import CandlePattern
+from ChartFormation import ChartFormation
+from SwingPoint import SwingPoint
 
 
 @dataclass(frozen=True)
@@ -11,7 +13,9 @@ class PatternReading:
     """The patterns found in the automatically chosen window and their verdict.
 
     bias is "BULL", "BEAR", "NEUTRAL" (both sides about equally strong) or
-    "NONE" (no pattern in the window).
+    "NONE" (no pattern in the window). swings and formation describe the price
+    structure (ZigZag and channel/triangle/wedge) drawn on the chart; they do
+    not change the bias.
     """
 
     window: int                          # candles back from today that were searched
@@ -20,6 +24,8 @@ class PatternReading:
     bull_score: float = 0.0              # recency-weighted strength of bull patterns
     bear_score: float = 0.0              # recency-weighted strength of bear patterns
     bias: str = "NONE"
+    swings: List[SwingPoint] = field(default_factory=list)
+    formation: Optional[ChartFormation] = None
 
     def net(self) -> float:
         """-1 (only bear) .. +1 (only bull); 0 when there is nothing."""
@@ -44,4 +50,6 @@ class PatternReading:
             "bull_score": round(self.bull_score, 3),
             "bear_score": round(self.bear_score, 3),
             "patterns": [p.to_dict() for p in self.patterns],
+            "swings": [s.to_dict() for s in self.swings],
+            "formation": None if self.formation is None else self.formation.to_dict(),
         }

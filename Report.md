@@ -90,16 +90,21 @@ Wywołuje `pattern_detector.detect(verdict)` dla jednego tickera, zapisuje wynik
 
 Werdykt formacji tickera do kolumny `CANDLES` tabeli podsumowania; `n/a`, gdy go nie ma.
 
+## _formation_cell(verdict)
+
+Werdykt formacji cenowej tickera do kolumny `FORMATION`: `ChartFormation.bias`, `-` gdy formacji nie znaleziono, `n/a` bez odczytu.
+
 ## _print_patterns(reading)
 
-W karcie tickera, przed sekcjami jakości danych: linia `Formacje świecowe: BULL (net +0.35)  bull 1 / bear 2  w oknie 32 świec -- …` i do 8 najnowszych formacji (kod, nazwa, kierunek, ile świec temu, data, siła, stan potwierdzenia).
+W karcie tickera, przed sekcjami jakości danych: linia `Formacje świecowe: BULL (net +0.35)  bull 1 / bear 2  w oknie 32 świec -- …` i do 8 najnowszych formacji (kod, nazwa, kierunek, ile świec temu, data, siła, stan potwierdzenia). Gdy `PatternDetector` znalazł formację cenową, druga linia brzmi `Formacja cenowa: BEAR -- Kanał wzrostowy (BULL, 5 swingów, 64 świec), wybicie dołem` (`ChartFormation.summary()`); bez formacji cenowej tej linii nie ma.
 
 ## Formacje świecowe w wynikach
 
-- Tabela podsumowania: kolumna `CANDLES` z werdyktem formacji (`BULL`, `BEAR`, `NEUTRAL`, `NONE`, `n/a` bez detektora/danych). **Nie wpływa** na CALL ani SCORE.
+- Tabela podsumowania: kolumna `CANDLES` z werdyktem formacji świecowych (`BULL`, `BEAR`, `NEUTRAL`, `NONE`, `n/a` bez detektora/danych) i kolumna `FORMATION` z werdyktem formacji cenowej (`BULL`, `BEAR`, `NEUTRAL`, `-` gdy formacji brak, `n/a`). **Nie wpływają** na CALL ani SCORE.
 - `analysis.json`: `candle_patterns` w każdym wyniku (`PatternReading.to_dict()`).
-- `analysis.csv`: kolumny `pattern_bias`, `pattern_net`, `pattern_window`, `pattern_bull`, `pattern_bear`, `pattern_latest` (najnowsza formacja: nazwa, kierunek, świece temu).
-- Wykres: formacje i okno są rysowane przez `CandleChart`.
+- `analysis.csv`: kolumny `pattern_bias`, `pattern_net`, `pattern_window`, `pattern_bull`, `pattern_bear`, `pattern_latest` (najnowsza formacja: nazwa, kierunek, świece temu) oraz `formation_bias`, `formation_name`, `formation_position` (formacja cenowa; puste, gdy jej brak).
+- `analysis.json`: w `candle_patterns` także `swings` (punkty ZigZag) i `formation` (formacja cenowa albo `null`).
+- Wykres: formacje świecowe, okno, czarny ZigZag i linie formacji cenowej są rysowane przez `CandleChart`.
 
 ## forecaster
 
